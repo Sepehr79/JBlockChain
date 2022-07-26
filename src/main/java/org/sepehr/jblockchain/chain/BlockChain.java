@@ -38,11 +38,11 @@ public class BlockChain {
 
         while (block != null) {
             stringBuilder
-                    .append("Id: ").append(block.getBlockId()).append("\n")
+                    .append("Block id: ").append(block.getBlockId()).append("\n")
                     .append("Previous hash: ").append(block.getPreviousHash()).append("\n")
                     .append("Current hash: ").append(block.getCurrentHash()).append("\n")
-                    .append("Headers: ").append(block.getBlockHeaders()).append("\n")
-                    .append("Body: ").append(block.getBlockBodies()).append("\n\n");
+                    .append("Block headers: ").append(block.getBlockHeaders()).append("\n")
+                    .append("Block bodies: ").append(block.getBlockBodies()).append("\n\n");
             block = block.getNextBlock();
         }
 
