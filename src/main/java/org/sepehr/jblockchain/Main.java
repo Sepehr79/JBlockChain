@@ -2,6 +2,7 @@ package org.sepehr.jblockchain;
 
 import org.sepehr.jblockchain.block.Block;
 import org.sepehr.jblockchain.chain.BlockChain;
+import org.sepehr.jblockchain.sample.Message;
 import org.sepehr.jblockchain.sample.Text;
 import org.sepehr.jblockchain.sample.Transaction;
 
@@ -19,8 +20,8 @@ public class Main {
         Block.BlockBuilder secondBlock = Block.builder()
                 .blockHeaders(Map.of("Description", "This block contains messages between two people"))
                 .blockBodies(
-                        List.of(new Transaction("Homa", "Hashem", "Hello Hashem"),
-                                new Transaction("Hamed", "Hamid", "Nice to meet you Hamid"))
+                        List.of(new Message("Homa", "Hashem", "Hello Hashem"),
+                                new Message("Hamed", "Hamid", "Nice to meet you Hamid"))
                 );
         Block.BlockBuilder thirdBlock = Block.builder()
                 .blockHeaders(Map.of("description", "This block contains texts"))
