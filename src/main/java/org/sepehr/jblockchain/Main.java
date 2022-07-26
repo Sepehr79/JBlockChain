@@ -2,6 +2,7 @@ package org.sepehr.jblockchain;
 
 import org.sepehr.jblockchain.block.Block;
 import org.sepehr.jblockchain.chain.BlockChain;
+import org.sepehr.jblockchain.sample.Text;
 import org.sepehr.jblockchain.sample.Transaction;
 
 import java.util.List;
@@ -21,10 +22,17 @@ public class Main {
                         List.of(new Transaction("Homa", "Hashem", "Hello Hashem"),
                                 new Transaction("Hamed", "Hamid", "Nice to meet you Hamid"))
                 );
+        Block.BlockBuilder thirdBlock = Block.builder()
+                .blockHeaders(Map.of("description", "This block contains texts"))
+                .blockBodies(List.of(new Text("Corona virus is a bad virus"),
+                                     new Text("I have infected by the corona virus")));
 
 
         final var blockChain = new BlockChain();
         blockChain.addBlock(firstBlock);
         blockChain.addBlock(secondBlock);
+        blockChain.addBlock(thirdBlock);
+
+        System.out.println(blockChain);
     }
 }

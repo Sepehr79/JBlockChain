@@ -40,4 +40,13 @@ public class Transaction implements BlockBody {
                 )
                 .toString();
     }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "sender='" + sender + '\'' +
+                ", receiver='" + receiver + '\'' +
+                ", amount='" + amount + '\'' +
+                '}';
+    }
 }

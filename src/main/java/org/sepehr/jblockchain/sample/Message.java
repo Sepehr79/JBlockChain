@@ -38,4 +38,13 @@ public class Message implements BlockBody {
                         StandardCharsets.UTF_8)
                 .toString();
     }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "sender='" + sender + '\'' +
+                ", receiver='" + receiver + '\'' +
+                ", text='" + text + '\'' +
+                '}';
+    }
 }
