@@ -30,18 +30,6 @@ public class Transaction implements BlockBody {
     }
 
     @Override
-    public String hash() {
-        return Hashing.sha256()
-                .hashString(
-                        sender +
-                                receiver +
-                                amount,
-                        StandardCharsets.UTF_8
-                )
-                .toString();
-    }
-
-    @Override
     public String toString() {
         return "Transaction{" +
                 "sender='" + sender + '\'' +

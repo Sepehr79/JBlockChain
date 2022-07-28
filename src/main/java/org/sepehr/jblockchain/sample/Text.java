@@ -18,13 +18,6 @@ public class Text implements BlockBody {
     }
 
     @Override
-    public String hash() {
-        return Hashing.sha256()
-                .hashString(this.text, StandardCharsets.UTF_8)
-                .toString();
-    }
-
-    @Override
     public String toString() {
         return "Text{" +
                 "text='" + text + '\'' +

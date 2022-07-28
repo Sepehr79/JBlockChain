@@ -30,16 +30,6 @@ public class Message implements BlockBody {
     }
 
     @Override
-    public String hash() {
-        return Hashing.sha256()
-                .hashString(sender +
-                        receiver +
-                        text,
-                        StandardCharsets.UTF_8)
-                .toString();
-    }
-
-    @Override
     public String toString() {
         return "Message{" +
                 "sender='" + sender + '\'' +
