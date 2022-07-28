@@ -1,9 +1,6 @@
 package org.sepehr.jblockchain.sample;
 
-import com.google.common.hash.Hashing;
 import org.sepehr.jblockchain.block.BlockBody;
-
-import java.nio.charset.StandardCharsets;
 
 public class Message implements BlockBody {
 
