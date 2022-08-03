@@ -6,11 +6,15 @@ import org.sepehr.jblockchain.sample.Message;
 import org.sepehr.jblockchain.sample.Text;
 import org.sepehr.jblockchain.sample.Transaction;
 
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+
         Block.BlockBuilder firstBlock = Block.builder()
                 .blockHeaders(Map.of("Description", "This block contains transactions between two people"))
                 .blockBodies(
