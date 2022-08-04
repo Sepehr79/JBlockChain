@@ -5,9 +5,10 @@ import org.sepehr.jblockchain.factory.RecoveryCodeFactory;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.Objects;
+import java.util.stream.IntStream;
 
-public class RecoveryCodeFactoryImp implements RecoveryCodeFactory {
+public class RecoveryWordsFactoryImp implements RecoveryCodeFactory {
 
     private static final SecureRandom RANDOM_GENERATOR = new SecureRandom();
     private static final ApplicationProperties PROPERTIES = ApplicationProperties.getInstance();
@@ -15,7 +16,7 @@ public class RecoveryCodeFactoryImp implements RecoveryCodeFactory {
 
     static {
         try {
-            words = new String(Objects.requireNonNull(RecoveryCodeFactoryImp.class.getResourceAsStream("/Words.csv")).readAllBytes()).split("\n");
+            words = new String(Objects.requireNonNull(RecoveryWordsFactoryImp.class.getResourceAsStream("/words.csv")).readAllBytes()).split("\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -23,10 +24,8 @@ public class RecoveryCodeFactoryImp implements RecoveryCodeFactory {
 
     @Override
     public String[] generateRandomRecoveryCodes() {
-        final List<String> wordsList = new ArrayList<>();
-        for (int i = 0; i < Integer.parseInt(PROPERTIES.getProperty("words.size")); i++) {
-            wordsList.add(RecoveryCodeFactoryImp.words[RANDOM_GENERATOR.nextInt(RecoveryCodeFactoryImp.words.length)]);
-        }
-        return wordsList.toArray(new String[0]);
+        return IntStream.range(0, Integer.parseInt(PROPERTIES.getProperty("random.words.size")))
+                .mapToObj(value -> words[RANDOM_GENERATOR.nextInt(words.length)])
+                .toArray(String[]::new);
     }
 }

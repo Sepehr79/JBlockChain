@@ -4,6 +4,6 @@ import java.security.KeyPair;
 
 public interface KeyFactory {
 
-    KeyPair generateKeyPair(String[] seeds);
+    KeyPair generateKeyPair(long timestamp, String[] seeds);
 
 }

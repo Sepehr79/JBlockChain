@@ -9,7 +9,7 @@ public class BlockChain {
     private Block currentBlock;
 
     public BlockChain() {
-        this.firstBlock = new Block("No hash");
+        this.firstBlock = new Block("00000000000000000000000000");
         this.currentBlock = firstBlock;
     }
 
@@ -31,18 +31,17 @@ public class BlockChain {
         return currentBlock;
     }
 
+    public String currentHash() {
+        return currentBlock.getCurrentHash();
+    }
+
     @Override
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder();
         var block = getFirstBlock();
 
         while (block != null) {
-            stringBuilder
-                    .append("Block id: ").append(block.getBlockId()).append("\n")
-                    .append("Previous hash: ").append(block.getPreviousHash()).append("\n")
-                    .append("Current hash: ").append(block.getCurrentHash()).append("\n")
-                    .append("Block headers: ").append(block.getBlockHeaders()).append("\n")
-                    .append("Block bodies: ").append(block.getBlockBodies()).append("\n\n");
+            stringBuilder.append(block).append("\n");
             block = block.getNextBlock();
         }
 

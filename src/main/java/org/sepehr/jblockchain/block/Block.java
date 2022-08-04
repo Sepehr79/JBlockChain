@@ -69,6 +69,17 @@ public class Block {
         return nextBlock;
     }
 
+    @Override
+    public String toString() {
+        return "{\n" +
+                "block_id: " + blockId.toString() + "\n" +
+                "block_headers: " + blockHeaders.toString() + "\n" +
+                "block_bodies: " + blockBodies.stream().map(BlockBody::toString).collect(Collectors.joining(",\n")) + "\n" +
+                "current_hash: " + getCurrentHash() + "\n" +
+                "previous_hash: " + previousHash + "\n" +
+                "}\n" ;
+    }
+
     /**
      * Helper class to build a new block based on block headers and bodies
      */

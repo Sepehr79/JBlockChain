@@ -1,14 +1,17 @@
 package org.sepehr.jblockchain.sample;
 
+import org.apache.commons.codec.binary.Hex;
 import org.sepehr.jblockchain.block.BlockBody;
 
 import java.math.BigDecimal;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 public class Account implements BlockBody {
 
-    private final String privateKey;
+    private final PrivateKey privateKey;
 
-    private final String publicKey;
+    private final PublicKey publicKey;
 
     private final long createdTimestamp;
 
@@ -16,8 +19,8 @@ public class Account implements BlockBody {
 
     private final BigDecimal amount;
 
-    public Account(final String privateKey,
-                   final String publicKey,
+    public Account(final PrivateKey privateKey,
+                   final PublicKey publicKey,
                    final long createdTimestamp,
                    final String[] recoveryCodes) {
         this.privateKey = privateKey;
@@ -27,11 +30,11 @@ public class Account implements BlockBody {
         this.amount = new BigDecimal("0");
     }
 
-    public String getPrivateKey() {
+    public PrivateKey getPrivateKey() {
         return privateKey;
     }
 
-    public String getPublicKey() {
+    public PublicKey getPublicKey() {
         return publicKey;
     }
 

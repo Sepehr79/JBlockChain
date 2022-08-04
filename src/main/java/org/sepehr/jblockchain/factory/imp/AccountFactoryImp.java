@@ -5,10 +5,7 @@ import org.sepehr.jblockchain.factory.KeyFactory;
 import org.sepehr.jblockchain.factory.RecoveryCodeFactory;
 import org.sepehr.jblockchain.sample.Account;
 
-import java.math.BigInteger;
 import java.security.KeyPair;
-import java.util.Arrays;
-import java.util.stream.Stream;
 
 public class AccountFactoryImp implements AccountFactory {
 
@@ -25,11 +22,10 @@ public class AccountFactoryImp implements AccountFactory {
     public Account buildAccount() {
         final long createdTimestamp  = System.currentTimeMillis();
         final String[] recoveryCodes = recoveryCodeFactory.generateRandomRecoveryCodes();
-        final String[] seeds = Stream.concat(Arrays.stream(new String[] {String.valueOf(createdTimestamp)}), Arrays.stream(recoveryCodes)).toArray(String[]::new);
-        final KeyPair keyPair = keyFactory.generateKeyPair(seeds);
+        final KeyPair keyPair = keyFactory.generateKeyPair(createdTimestamp, recoveryCodes);
         return new Account(
-                new BigInteger(1, keyPair.getPrivate().getEncoded()).toString(16), // Convert byte array to hexadecimal string
-                new BigInteger(1, keyPair.getPublic().getEncoded()).toString(16),
+                keyPair.getPrivate(),
+                keyPair.getPublic(),
                 createdTimestamp,
                 recoveryCodes
         );

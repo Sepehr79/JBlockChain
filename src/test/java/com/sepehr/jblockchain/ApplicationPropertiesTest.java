@@ -12,8 +12,6 @@ class ApplicationPropertiesTest {
         final String propertyName = "application.properties.status";
         final ApplicationProperties properties = ApplicationProperties.getInstance();
         assertEquals("alive", properties.getProperty(propertyName));
-
-
     }
 
 }
