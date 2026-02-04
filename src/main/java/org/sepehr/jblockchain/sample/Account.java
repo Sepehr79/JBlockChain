@@ -13,21 +13,10 @@ public class Account implements BlockBody {
 
     private final PublicKey publicKey;
 
-    private final long createdTimestamp;
-
-    private final String[] recoveryCodes;
-
-    private final BigDecimal amount;
-
     public Account(final PrivateKey privateKey,
-                   final PublicKey publicKey,
-                   final long createdTimestamp,
-                   final String[] recoveryCodes) {
+                   final PublicKey publicKey) {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
-        this.createdTimestamp = createdTimestamp;
-        this.recoveryCodes = recoveryCodes;
-        this.amount = new BigDecimal("0");
     }
 
     public PrivateKey getPrivateKey() {
@@ -38,23 +27,10 @@ public class Account implements BlockBody {
         return publicKey;
     }
 
-    public long getCreatedTimestamp() {
-        return createdTimestamp;
-    }
-
-    public String[] getRecoveryCodes() {
-        return recoveryCodes;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
     @Override
     public String toString() {
         return "Account{" +
                 "publicKey='" + publicKey + '\'' +
-                ", amount=" + amount +
                 '}';
     }
 }

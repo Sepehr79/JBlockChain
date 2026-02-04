@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
-        final AccountFactoryImp accountFactoryImp = new AccountFactoryImp(new KeyFactoryImp(), new RecoveryWordsFactoryImp());
+        final AccountFactoryImp accountFactoryImp = new AccountFactoryImp(new KeyFactoryImp());
         Account account1 = accountFactoryImp.buildAccount();
         Account account2 = accountFactoryImp.buildAccount();
         Account account3 = accountFactoryImp.buildAccount();

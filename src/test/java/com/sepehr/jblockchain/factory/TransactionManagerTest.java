@@ -18,7 +18,7 @@ class TransactionManagerTest {
 
     @Test
     void signatureAndDeSignatureTest() throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, NoSuchProviderException {
-        final AccountFactoryImp accountFactoryImp = new AccountFactoryImp(new KeyFactoryImp(), new RecoveryWordsFactoryImp());
+        final AccountFactoryImp accountFactoryImp = new AccountFactoryImp(new KeyFactoryImp());
         final TransactionManager transactionManager = new TransactionManager();
 
         Account account1 = accountFactoryImp.buildAccount();

@@ -14,12 +14,10 @@ class KeyFactoryTest {
 
     @Test
     void sameKayPairGenerationTest() throws DecoderException {
-        final String[] seeds = {"Hello"};
-        final long timestamp = 1001;
 
         KeyFactoryImp keyFactoryImp = new KeyFactoryImp();
-        KeyPair keyPair1 = keyFactoryImp.generateKeyPair(timestamp, seeds);
-        KeyPair keyPair2 = keyFactoryImp.generateKeyPair(timestamp, seeds);
+        KeyPair keyPair1 = keyFactoryImp.generateKeyPair();
+        KeyPair keyPair2 = keyFactoryImp.generateKeyPair();
 
         assertArrayEquals(keyPair1.getPrivate().getEncoded(), keyPair2.getPrivate().getEncoded());
         String hexCode = Hex.encodeHexString(keyPair1.getPrivate().getEncoded());
