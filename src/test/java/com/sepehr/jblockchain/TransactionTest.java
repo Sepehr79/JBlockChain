@@ -10,17 +10,30 @@ import org.sepehr.jblockchain.transaction.Transaction;
 
 public class TransactionTest {
 
+    AccountFactoryImp accountFactory = new AccountFactoryImp(new KeyFactoryImp());
+    SimpleTransactionFactory transactionFactory = new SimpleTransactionFactory();
+
     @Test
     void transactionCreationVerifyTest() {
-        AccountFactoryImp accountFactory = new AccountFactoryImp(new KeyFactoryImp());
         Account sender = accountFactory.buildAccount();
-
-        SimpleTransactionFactory factory = new SimpleTransactionFactory();
-        Transaction transaction = factory.createTransaction(
+        Transaction transaction = transactionFactory.createTransaction(
                 sender.getPublicKey(),
                 sender.getPrivateKey()
         );
-        Assertions.assertTrue(factory.verifyTransaction(sender.getPublicKey(), transaction));
+        Assertions.assertTrue(transactionFactory.verifyTransaction(sender.getPublicKey(), transaction));
+    }
+
+    @Test
+    void doubleSpendingTest() {
+        Account sender1 = accountFactory.buildAccount();
+        Account sender2 = accountFactory.buildAccount();
+
+        Transaction transaction1 = transactionFactory.createTransaction(sender1.getPublicKey(), sender1.getPrivateKey());
+        Transaction transaction2 = transactionFactory.createTransaction(sender2.getPublicKey(), sender2.getPrivateKey(), transaction1.getHash());
+        Transaction transaction3 = transactionFactory.createTransaction(sender2.getPublicKey(), sender2.getPrivateKey(), transaction1.getHash());
+
+        Assertions.assertTrue(transactionFactory.verifyTransaction(sender2.getPublicKey(), transaction2));
+        Assertions.assertTrue(transactionFactory.verifyTransaction(sender2.getPublicKey(), transaction3));
     }
 
 }
