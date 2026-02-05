@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.sepehr.jblockchain.factory.imp.AccountFactoryImp;
 import org.sepehr.jblockchain.factory.imp.KeyFactoryImp;
 import org.sepehr.jblockchain.sample.Account;
-import org.sepehr.jblockchain.transaction.SimpleTransactionFactory;
+import org.sepehr.jblockchain.transaction.SimpleTransactionManager;
 import org.sepehr.jblockchain.transaction.Transaction;
 
 public class TransactionTest {
 
     AccountFactoryImp accountFactory = new AccountFactoryImp(new KeyFactoryImp());
-    SimpleTransactionFactory transactionFactory = new SimpleTransactionFactory();
+    SimpleTransactionManager transactionFactory = new SimpleTransactionManager();
 
     @Test
     void transactionCreationVerifyTest() {
@@ -20,7 +20,7 @@ public class TransactionTest {
                 sender.getPublicKey(),
                 sender.getPrivateKey()
         );
-        Assertions.assertTrue(transactionFactory.verifyTransaction(sender.getPublicKey(), transaction));
+        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction));
     }
 
     @Test
@@ -32,8 +32,8 @@ public class TransactionTest {
         Transaction transaction2 = transactionFactory.createTransaction(sender2.getPublicKey(), sender2.getPrivateKey(), transaction1.getHash());
         Transaction transaction3 = transactionFactory.createTransaction(sender2.getPublicKey(), sender2.getPrivateKey(), transaction1.getHash());
 
-        Assertions.assertTrue(transactionFactory.verifyTransaction(sender2.getPublicKey(), transaction2));
-        Assertions.assertTrue(transactionFactory.verifyTransaction(sender2.getPublicKey(), transaction3));
+        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction2));
+        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction3));
     }
 
 }

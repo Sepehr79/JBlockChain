@@ -2,7 +2,7 @@ package org.sepehr.jblockchain.transaction;
 
 import java.security.*;
 
-public class SimpleTransactionFactory implements TransactionFactory{
+public class SimpleTransactionManager implements TransactionManager {
 
     public Transaction createTransaction(PublicKey senderPublic, PrivateKey senderPrivate) {
         return createTransaction(senderPublic, senderPrivate, "".getBytes());
@@ -24,10 +24,10 @@ public class SimpleTransactionFactory implements TransactionFactory{
     }
 
     @Override
-    public boolean verifyTransaction(PublicKey senderPublic, Transaction transaction) {
+    public boolean verifyTransaction(Transaction transaction) {
         try {
             var signature = Signature.getInstance("SHA1withDSA", "SUN");
-            signature.initVerify(senderPublic);
+            signature.initVerify(transaction.getSender());
             signature.update(transaction.getHash());
             return signature.verify(transaction.getTransactionSignature());
         } catch (NoSuchAlgorithmException | NoSuchProviderException | SignatureException | InvalidKeyException e) {
