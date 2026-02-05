@@ -13,9 +13,7 @@ public class ProofOfWorkTest {
         Block block = new Block("prevHash".getBytes());
 
         Assertions.assertTrue(miner.mine(block, 10_000));
-        byte[] hash = block.getHash();
-        Assertions.assertEquals(hash[0], 0);
-        Assertions.assertEquals(hash[1], 0);
+        Assertions.assertTrue(miner.verifyBlock(block));
     }
 
 }

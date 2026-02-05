@@ -23,6 +23,11 @@ public class SimpleTimestampServer implements TimestampServer {
     }
 
     @Override
+    public void acceptBlock(Block block) {
+        this.blocks.add(block);
+    }
+
+    @Override
     public boolean isDuplicateTransaction(Transaction transaction) {
         for (Block block : blocks) {
             for (Transaction t : block.getItems()) {

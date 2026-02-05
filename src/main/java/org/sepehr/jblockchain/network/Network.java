@@ -9,9 +9,9 @@ public interface Network {
 
     void collectTransaction(Transaction transaction);
 
-    Block mineCurrentBock();
+    void mineCurrentBock();
 
-    void broadcastCurrentBlock();
+    void broadcastBlock(Block block);
 
     boolean acceptBlock(Block block);
 

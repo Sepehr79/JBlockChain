@@ -1,10 +1,8 @@
-package org.sepehr.jblockchain.factory.imp;
-
-import org.sepehr.jblockchain.factory.KeyFactory;
+package org.sepehr.jblockchain.factory;
 
 import java.security.*;
 
-public class KeyFactoryImp implements KeyFactory {
+public class SimpleKeyFactory implements KeyFactory {
 
     private static final String SECURE = "few";
     @Override

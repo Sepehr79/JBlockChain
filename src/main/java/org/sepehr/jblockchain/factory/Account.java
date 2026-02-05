@@ -1,13 +1,9 @@
-package org.sepehr.jblockchain.sample;
+package org.sepehr.jblockchain.factory;
 
-import org.apache.commons.codec.binary.Hex;
-import org.sepehr.jblockchain.block.BlockBody;
-
-import java.math.BigDecimal;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-public class Account implements BlockBody {
+public class Account {
 
     private final PrivateKey privateKey;
 
