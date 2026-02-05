@@ -7,7 +7,6 @@ import org.sepehr.jblockchain.transaction.Transaction;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -27,14 +26,6 @@ public class Block {
         hasher.putBytes(ByteBuffer.allocateDirect(nonce));
         hasher.putBytes(prevHash);
         return hasher.hash().asBytes();
-    }
-
-    protected boolean isDuplicateTransaction(Transaction transaction) {
-        for (Transaction t: items) {
-            if (Arrays.equals(t.getPrevHash(), transaction.getPrevHash()))
-                return true;
-        }
-        return false;
     }
 
     public void appendTransaction(Transaction transaction) {

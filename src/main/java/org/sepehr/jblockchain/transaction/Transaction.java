@@ -3,27 +3,43 @@ package org.sepehr.jblockchain.transaction;
 
 import com.google.common.hash.Hashing;
 import com.google.common.primitives.Bytes;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.security.PublicKey;
+import java.util.List;
 
-@Data
+
+@AllArgsConstructor
+@Getter
 public class Transaction {
 
-    public Transaction(PublicKey sender, byte[] prevHash) {
-        this.sender = sender;
-        this.prevHash = prevHash;
-    }
-
     private final PublicKey sender;
-    private byte[] prevHash;
 
+    private PublicKey receiver;
+
+    @Setter
+    private Utxo out0;
+
+    @Setter
+    private Utxo out1;
+
+    @Setter
     private byte[] transactionSignature;
 
-    public byte[] getHash() {
-        return Hashing.sha256().hashBytes(Bytes.concat(
-                prevHash,
-                sender.getEncoded())
-        ).asBytes();
+    @Setter
+    private byte[] hash;
+
+    @Setter
+    private List<Utxo> inputs;
+
+    private long amount;
+
+    public Transaction(PublicKey senderPublic, long amount, PublicKey receiverPublic) {
+        this.sender = senderPublic;
+        this.amount = amount;
+        this.receiver = receiverPublic;
     }
+
 }

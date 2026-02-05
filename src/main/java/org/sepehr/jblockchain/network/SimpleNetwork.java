@@ -49,8 +49,7 @@ public abstract class SimpleNetwork implements Network {
         if (!blockMiner.verifyBlock(block))
             return false;
         for (Transaction transaction: block.getItems()) {
-            if (transactionManager.verifyTransaction(transaction) ||
-                    timestampServer.isDuplicateTransaction(transaction))
+            if (transactionManager.verifyTransaction(transaction))
                 return false;
         }
         timestampServer.acceptBlock(block);

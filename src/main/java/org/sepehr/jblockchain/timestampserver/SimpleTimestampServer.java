@@ -1,23 +1,19 @@
 package org.sepehr.jblockchain.timestampserver;
 
 import org.sepehr.jblockchain.transaction.Transaction;
+import org.sepehr.jblockchain.transaction.Utxo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class SimpleTimestampServer implements TimestampServer {
 
-    public SimpleTimestampServer(Transaction firstTransaction) {
-        Block firstBlock = new Block("".getBytes());
-        firstBlock.appendTransaction(firstTransaction);
-        blocks.add(firstBlock);
+    public SimpleTimestampServer() {
+
     }
 
     @Override
     public boolean appendTransaction(Transaction transaction) {
-        if (isDuplicateTransaction(transaction))
-            return false;
         blocks.get(blocks.size()-1).appendTransaction(transaction);
         return true;
     }
@@ -25,17 +21,6 @@ public class SimpleTimestampServer implements TimestampServer {
     @Override
     public void acceptBlock(Block block) {
         this.blocks.add(block);
-    }
-
-    @Override
-    public boolean isDuplicateTransaction(Transaction transaction) {
-        for (Block block : blocks) {
-            for (Transaction t : block.getItems()) {
-                if (Arrays.equals(t.getPrevHash(), transaction.getPrevHash()))
-                    return true;
-            }
-        }
-        return false;
     }
 
     @Override

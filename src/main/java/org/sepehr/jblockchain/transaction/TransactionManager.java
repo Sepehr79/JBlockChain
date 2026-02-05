@@ -2,10 +2,15 @@ package org.sepehr.jblockchain.transaction;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.List;
 
 public interface TransactionManager {
 
-    Transaction createTransaction(PublicKey senderPublic, PrivateKey senderPrivate, byte[] prevHash);
+    Transaction createTransaction(PublicKey senderPublic,
+                                  PrivateKey senderPrivate,
+                                  long amount,
+                                  PublicKey receiverPublic,
+                                  List<Utxo> inputs);
 
     boolean verifyTransaction(Transaction transaction);
 }

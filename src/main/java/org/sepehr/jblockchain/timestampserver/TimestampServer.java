@@ -7,7 +7,5 @@ public interface TimestampServer {
 
     void acceptBlock(Block block);
 
-    boolean isDuplicateTransaction(Transaction transaction);
-
     byte[] getHash();
 }
