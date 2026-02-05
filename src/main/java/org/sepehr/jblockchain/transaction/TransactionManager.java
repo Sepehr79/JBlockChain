@@ -12,5 +12,5 @@ public interface TransactionManager {
                                   PublicKey receiverPublic,
                                   List<Utxo> inputs);
 
-    boolean verifyTransaction(Transaction transaction);
+    boolean verifyTransaction(Transaction transaction, List<Utxo> inputs);
 }

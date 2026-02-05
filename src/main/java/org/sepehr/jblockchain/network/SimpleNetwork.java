@@ -46,14 +46,14 @@ public abstract class SimpleNetwork implements Network {
 
     @Override
     public boolean acceptBlock(Block block) {
-        if (!blockMiner.verifyBlock(block))
-            return false;
-        for (Transaction transaction: block.getItems()) {
-            if (transactionManager.verifyTransaction(transaction))
-                return false;
-        }
-        timestampServer.acceptBlock(block);
-        currentBlock = new Block(timestampServer.getHash());
+//        if (!blockMiner.verifyBlock(block))
+//            return false;
+//        for (Transaction transaction: block.getItems()) {
+//            if (transactionManager.verifyTransaction(transaction))
+//                return false;
+//        }
+//        timestampServer.acceptBlock(block);
+//        currentBlock = new Block(timestampServer.getHash());
         return true;
     }
 }

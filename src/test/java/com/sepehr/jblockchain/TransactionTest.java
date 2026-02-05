@@ -23,14 +23,15 @@ public class TransactionTest {
         Assertions.assertNotEquals(sender.getPublicKey(), receiver.getPublicKey());
         Utxo utxo1 = new Utxo(sender.getPublicKey(), 300, "".getBytes(), 0);
         Utxo utxo2 = new Utxo(sender.getPublicKey(), 400, "".getBytes(), 0);
+        List<Utxo> inputs = List.of(utxo1, utxo2);
         Transaction transaction = transactionFactory.createTransaction(
                 sender.getPublicKey(),
                 sender.getPrivateKey(),
                 500,
                 receiver.getPublicKey(),
-                List.of(utxo1, utxo2)
+                inputs
         );
-        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction));
+        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction, inputs));
     }
 
     @Test
@@ -40,7 +41,7 @@ public class TransactionTest {
         Account receiver2 = accountFactory.buildAccount();
         Account receiver3 = accountFactory.buildAccount();
 
-        List<Utxo> utxos = List.of(
+        List<Utxo> inputs = List.of(
                 new Utxo(sender.getPublicKey(), 500, "".getBytes(), 0),
                 new Utxo(sender.getPublicKey(), 600, "".getBytes(), 1)
         );
@@ -50,32 +51,31 @@ public class TransactionTest {
                 sender.getPrivateKey(),
                 600,
                 receiver.getPublicKey(),
-                utxos
+                inputs
         );
 
-
+        List<Utxo> inputs1 = List.of(transaction1.getOut0());
         Transaction transaction2 = transactionFactory.createTransaction(
                 receiver.getPublicKey(),
                 receiver.getPrivateKey(),
                 300,
                 receiver2.getPublicKey(),
-                List.of(transaction1.getOut0())
+                inputs
         );
 
         Assertions.assertEquals(transaction2.getOut0().getReceiver(), receiver2.getPublicKey());
-
 
         Transaction transaction3 = transactionFactory.createTransaction(
                 receiver.getPublicKey(),
                 receiver.getPrivateKey(),
                 100,
                 receiver3.getPublicKey(),
-                List.of(transaction1.getOut0())
+                inputs
         );
 
-        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction1));
-        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction2));
-        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction3));
+        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction1, inputs));
+        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction2, inputs1));
+        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction3, inputs1));
     }
 
 }

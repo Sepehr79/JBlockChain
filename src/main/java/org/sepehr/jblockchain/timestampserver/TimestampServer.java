@@ -2,8 +2,14 @@ package org.sepehr.jblockchain.timestampserver;
 
 import org.sepehr.jblockchain.transaction.Transaction;
 
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
 public interface TimestampServer {
-    boolean appendTransaction(Transaction transaction);
+    Transaction createTransaction(PublicKey senderPublic,
+                              PrivateKey senderPrivate,
+                              long amount,
+                              PublicKey receiverPublic);
 
     void acceptBlock(Block block);
 

@@ -19,4 +19,16 @@ public class SimpleKeyFactory implements KeyFactory {
             return null;
         }
     }
+
+    public KeyPair creatorKeyPair() {
+        try {
+            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+            final SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG", "SUN");
+            secureRandom.setSeed(42);
+            keyGen.initialize(1024, secureRandom);
+            return keyGen.generateKeyPair();
+        } catch (NoSuchAlgorithmException | NoSuchProviderException noSuchAlgorithmException) {
+            return null;
+        }
+    }
 }
