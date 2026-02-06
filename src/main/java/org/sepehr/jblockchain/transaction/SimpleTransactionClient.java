@@ -6,7 +6,7 @@ import com.google.common.hash.Hashing;
 import java.security.*;
 import java.util.List;
 
-public class SimpleTransactionManager implements TransactionManager {
+public class SimpleTransactionClient implements TransactionClient {
 
     @Override
     public Transaction createTransaction(PublicKey senderPublic,

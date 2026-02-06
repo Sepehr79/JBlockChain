@@ -16,7 +16,7 @@ public interface TimestampServer {
 
     boolean appendTransaction(Transaction transaction);
 
-    List<Utxo> getInputs(PublicKey senderPublic);
+    List<Utxo> getTransactionInputs(PublicKey senderPublic);
 
     int getCurrentBlockIdx();
 }

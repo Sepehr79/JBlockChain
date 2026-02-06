@@ -6,9 +6,8 @@ import org.sepehr.jblockchain.account.Account;
 import org.sepehr.jblockchain.account.SimpleAccountFactory;
 import org.sepehr.jblockchain.account.SimpleKeyFactory;
 import org.sepehr.jblockchain.proofwork.SimpleBlockMiner;
-import org.sepehr.jblockchain.timestampserver.Block;
 import org.sepehr.jblockchain.timestampserver.SimpleTimestampServer;
-import org.sepehr.jblockchain.transaction.SimpleTransactionManager;
+import org.sepehr.jblockchain.transaction.SimpleTransactionClient;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
 
@@ -17,7 +16,7 @@ import java.util.List;
 public class TimestampServerTest {
 
     SimpleAccountFactory accountFactory = new SimpleAccountFactory(new SimpleKeyFactory());
-    SimpleTransactionManager transactionManager = new SimpleTransactionManager();
+    SimpleTransactionClient transactionClient = new SimpleTransactionClient();
 
     @Test
     void preventDoubleSpendingTest() {
@@ -28,13 +27,12 @@ public class TimestampServerTest {
 
         final SimpleTimestampServer timestampServer = new SimpleTimestampServer(
                 baseAccount,
-                new SimpleTransactionManager(),
                 new SimpleBlockMiner(2)
         );
         Assertions.assertEquals(0, timestampServer.getCurrentBlockIdx());
 
-        List<Utxo> inputs1 = timestampServer.getInputs(baseAccount.getPublicKey());
-        Transaction transaction1 = transactionManager.createTransaction(
+        List<Utxo> inputs1 = timestampServer.getTransactionInputs(baseAccount.getPublicKey());
+        Transaction transaction1 = transactionClient.createTransaction(
                 baseAccount.getPublicKey(),
                 baseAccount.getPrivateKey(),
                 500,
@@ -46,8 +44,8 @@ public class TimestampServerTest {
         Assertions.assertTrue(timestampServer.mineCurrentBlock(Long.MAX_VALUE));
         Assertions.assertEquals(1, timestampServer.getCurrentBlockIdx());
 
-        List<Utxo> inputs2 = timestampServer.getInputs(receiver1.getPublicKey());
-        Transaction transaction2 = transactionManager.createTransaction(
+        List<Utxo> inputs2 = timestampServer.getTransactionInputs(receiver1.getPublicKey());
+        Transaction transaction2 = transactionClient.createTransaction(
                 receiver1.getPublicKey(),
                 receiver1.getPrivateKey(),
                 400,
@@ -65,9 +63,9 @@ public class TimestampServerTest {
         // Prevent double spending
         Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
 
-        List<Utxo> inputs3 = timestampServer.getInputs(receiver1.getPublicKey());
+        List<Utxo> inputs3 = timestampServer.getTransactionInputs(receiver1.getPublicKey());
         Assertions.assertEquals(100, inputs3.stream().map(Utxo::getValue).reduce(Long::sum).get());
-        Transaction transaction3 = transactionManager.createTransaction(
+        Transaction transaction3 = transactionClient.createTransaction(
                 receiver1.getPublicKey(),
                 receiver1.getPrivateKey(),
                 400,

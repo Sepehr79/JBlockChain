@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.sepehr.jblockchain.account.Account;
 import org.sepehr.jblockchain.account.SimpleAccountFactory;
 import org.sepehr.jblockchain.account.SimpleKeyFactory;
-import org.sepehr.jblockchain.transaction.SimpleTransactionManager;
+import org.sepehr.jblockchain.transaction.SimpleTransactionClient;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
 
@@ -14,7 +14,7 @@ import java.util.List;
 public class TransactionTest {
 
     SimpleAccountFactory accountFactory = new SimpleAccountFactory(new SimpleKeyFactory());
-    SimpleTransactionManager transactionFactory = new SimpleTransactionManager();
+    SimpleTransactionClient transactionFactory = new SimpleTransactionClient();
 
     @Test
     void transactionCreationVerifyTest() {

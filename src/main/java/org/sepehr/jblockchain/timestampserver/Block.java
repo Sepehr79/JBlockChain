@@ -5,7 +5,7 @@ import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
 import org.sepehr.jblockchain.account.Account;
-import org.sepehr.jblockchain.transaction.SimpleTransactionManager;
+import org.sepehr.jblockchain.transaction.SimpleTransactionClient;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
 
@@ -25,7 +25,7 @@ public class Block {
         Utxo input = new Utxo(baseAccount.getPublicKey(), 21_000_000, "".getBytes(), 0);
         input.setConfirmed(true);
         this.prevHash = Hashing.sha256().hashBytes("".getBytes()).asBytes();
-        SimpleTransactionManager simpleTransactionManager = new SimpleTransactionManager();
+        SimpleTransactionClient simpleTransactionManager = new SimpleTransactionClient();
         Transaction transaction = simpleTransactionManager.createTransaction(
                 baseAccount.getPublicKey(),
                 baseAccount.getPrivateKey(),

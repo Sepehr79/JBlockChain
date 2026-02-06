@@ -3,12 +3,12 @@ package org.sepehr.jblockchain.network;
 import org.sepehr.jblockchain.proofwork.SimpleBlockMiner;
 import org.sepehr.jblockchain.timestampserver.Block;
 import org.sepehr.jblockchain.timestampserver.TimestampServer;
-import org.sepehr.jblockchain.transaction.SimpleTransactionManager;
+import org.sepehr.jblockchain.transaction.SimpleTransactionClient;
 import org.sepehr.jblockchain.transaction.Transaction;
 
 public abstract class SimpleNetwork implements Network {
 
-    private final SimpleTransactionManager transactionManager;
+    private final SimpleTransactionClient transactionManager;
 
     private final TimestampServer timestampServer;
 
@@ -16,7 +16,7 @@ public abstract class SimpleNetwork implements Network {
 
     private Block currentBlock;
 
-    public SimpleNetwork(SimpleTransactionManager transactionManager, TimestampServer timestampServer, SimpleBlockMiner blockMiner) {
+    public SimpleNetwork(SimpleTransactionClient transactionManager, TimestampServer timestampServer, SimpleBlockMiner blockMiner) {
         this.transactionManager = transactionManager;
         this.timestampServer = timestampServer;
         this.blockMiner = blockMiner;

@@ -4,7 +4,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.List;
 
-public interface TransactionManager {
+public interface TransactionClient {
 
     Transaction createTransaction(PublicKey senderPublic,
                                   PrivateKey senderPrivate,
