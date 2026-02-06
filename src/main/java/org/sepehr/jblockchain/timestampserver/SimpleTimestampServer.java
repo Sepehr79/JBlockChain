@@ -7,7 +7,6 @@ import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.TransactionManager;
 import org.sepehr.jblockchain.transaction.Utxo;
 
-import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -42,21 +41,13 @@ public class SimpleTimestampServer implements TimestampServer {
                                          PrivateKey senderPrivate,
                                          long amount,
                                          PublicKey receiverPublic) {
-        List<Utxo> inputs = new ArrayList<>();
-        for (Block block: blocks)
-            for (Transaction t: block.getItems()) {
-                if (t.getOut0().getReceiver().equals(senderPublic) && !t.getOut0().isSpent() && t.getOut0().isConfirmed())
-                    inputs.add(t.getOut0());
-                if (t.getOut1().getReceiver().equals(senderPublic) && !t.getOut1().isSpent() && t.getOut1().isConfirmed())
-                    inputs.add(t.getOut1());
-            }
-
+        List<Utxo> inputs = getInputs(senderPublic);
         return transactionManager.createTransaction(senderPublic, senderPrivate, amount, receiverPublic, inputs);
     }
 
     @Override
     public boolean acceptBlock(Block block) {
-        if (blockMiner.verifyBlock(block)) {
+        if (blockMiner.verifyBlock(block) && verifyTransactions(block.getItems())) {
             int idx = block.getIdx();
             for (Transaction transaction: block.getItems()) {
                 transactionManager.verifyTransaction(transaction, transaction.getInputs());
@@ -96,8 +87,33 @@ public class SimpleTimestampServer implements TimestampServer {
     }
 
     @Override
-    public void appendTransaction(Transaction transaction) {
-        this.currentBlock.appendTransaction(transaction);
+    public boolean appendTransaction(Transaction transaction) {
+        if (verifyTransactions(List.of(transaction))) {
+            this.currentBlock.appendTransaction(transaction);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean verifyTransactions(List<Transaction> transactions) {
+        for (Transaction transaction: transactions) {
+            List<Utxo> inputs = getInputs(transaction.getSender());
+            if (!transactionManager.verifyTransaction(transaction, inputs))
+                return false;
+        }
+        return true;
+    }
+
+    private List<Utxo> getInputs(PublicKey senderPublic) {
+        List<Utxo> inputs = new ArrayList<>();
+        for (Block block: blocks)
+            for (Transaction t: block.getItems()) {
+                if (t.getOut0().getReceiver().equals(senderPublic) && !t.getOut0().isSpent() && t.getOut0().isConfirmed())
+                    inputs.add(t.getOut0());
+                if (t.getOut1().getReceiver().equals(senderPublic) && !t.getOut1().isSpent() && t.getOut1().isConfirmed())
+                    inputs.add(t.getOut1());
+            }
+        return inputs;
     }
 
 

@@ -48,20 +48,31 @@ public class TimestampServerTest {
         Assertions.assertTrue(timestampServer.acceptBlock(block));
 
 
-//        Transaction transaction2 = timestampServer.createTransaction(
-//                receiver1.getPublicKey(),
-//                receiver1.getPrivateKey(),
-//                400,
-//                receiver2.getPublicKey()
-//        );
+        Transaction transaction2 = timestampServer.createTransaction(
+                receiver1.getPublicKey(),
+                receiver1.getPrivateKey(),
+                400,
+                receiver2.getPublicKey()
+        );
 
-//        SimpleTimestampServer timestampServer = new SimpleTimestampServer(keyFactory.creatorKeyPair(), new SimpleTransactionManager());
-//        Assertions.assertTrue(timestampServer.appendTransaction(transaction1));
-//
-//        Transaction transaction2 = transactionFactory.createTransaction(receiver.getPublicKey(), receiver.getPrivateKey(), 300,
-//                receiver2.getPublicKey(), List.of(transaction1.getOut0()));
-//        Assertions.assertTrue(timestampServer.appendTransaction(transaction2));
-//
+        Assertions.assertNotNull(transaction2);
+        Assertions.assertTrue(timestampServer.appendTransaction(transaction2));
+        Block block2 = timestampServer.mineCurrentBlock(Long.MAX_VALUE);
+        Assertions.assertTrue(timestampServer.acceptBlock(block2));
+
+        // Prevent double spending
+        Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
+
+        Transaction transaction3 = timestampServer.createTransaction(
+                receiver1.getPublicKey(),
+                receiver1.getPrivateKey(),
+                400,
+                receiver3.getPublicKey()
+        );
+        Assertions.assertNotNull(transaction3);
+        Assertions.assertFalse(timestampServer.appendTransaction(transaction3));
+
+
 //        Transaction transaction3 = transactionFactory.createTransaction(receiver2.getPublicKey(), receiver2.getPrivateKey(), 100,
 //                receiver3.getPublicKey(), List.of(transaction1.getOut0())); // Spend transaction
 //        Assertions.assertFalse(timestampServer.appendTransaction(transaction3));

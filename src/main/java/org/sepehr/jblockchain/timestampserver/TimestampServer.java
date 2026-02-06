@@ -17,5 +17,5 @@ public interface TimestampServer {
 
     Block mineCurrentBlock(long timeout);
 
-    void appendTransaction(Transaction transaction);
+    boolean appendTransaction(Transaction transaction);
 }
