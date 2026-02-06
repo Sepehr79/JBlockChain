@@ -1,6 +1,6 @@
 package org.sepehr.jblockchain.timestampserver;
 
-import org.sepehr.jblockchain.factory.Account;
+import org.sepehr.jblockchain.account.Account;
 import org.sepehr.jblockchain.proofwork.BlockMiner;
 import org.sepehr.jblockchain.transaction.SimpleTransactionManager;
 import org.sepehr.jblockchain.transaction.Transaction;
@@ -9,7 +9,9 @@ import org.sepehr.jblockchain.transaction.Utxo;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SimpleTimestampServer implements TimestampServer {
 
@@ -36,7 +38,7 @@ public class SimpleTimestampServer implements TimestampServer {
 
     @Override
     public boolean acceptBlock(Block block) {
-        if (blockMiner.verifyBlock(block) && verifyTransactions(block.getItems())) {
+        if (blockMiner.verifyBlock(block) && verifyTransactions(block.getItems()) && !sameSenderInBlock(block)) {
             int idx = block.getIdx();
             for (Transaction transaction: block.getItems()) {
                 List<Utxo> inputs = getInputs(transaction.getSender());
@@ -70,7 +72,7 @@ public class SimpleTimestampServer implements TimestampServer {
 
     @Override
     public boolean appendTransaction(Transaction transaction) {
-        if (verifyTransactions(List.of(transaction))) {
+        if (verifyTransactions(List.of(transaction)) && !sameSenderInBlock(currentBlock, transaction)) {
             this.currentBlock.appendTransaction(transaction);
             return true;
         }
@@ -97,6 +99,19 @@ public class SimpleTimestampServer implements TimestampServer {
                     inputs.add(t.getOut1());
             }
         return inputs;
+    }
+
+    private boolean sameSenderInBlock(Block block) {
+        Set<PublicKey> publicKeys = new HashSet<>();
+        block.getItems().forEach(transaction -> publicKeys.add(transaction.getSender()));
+        return publicKeys.size() < block.getItems().size();
+    }
+
+    private boolean sameSenderInBlock(Block block, Transaction newTransaction) {
+        Set<PublicKey> publicKeys = new HashSet<>();
+        block.getItems().forEach(transaction -> publicKeys.add(transaction.getSender()));
+        publicKeys.add(newTransaction.getSender());
+        return publicKeys.size() < block.getItems().size() + 1;
     }
 
 

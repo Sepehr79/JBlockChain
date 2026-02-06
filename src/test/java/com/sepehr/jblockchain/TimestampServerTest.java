@@ -2,9 +2,9 @@ package com.sepehr.jblockchain;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.sepehr.jblockchain.factory.Account;
-import org.sepehr.jblockchain.factory.SimpleAccountFactory;
-import org.sepehr.jblockchain.factory.SimpleKeyFactory;
+import org.sepehr.jblockchain.account.Account;
+import org.sepehr.jblockchain.account.SimpleAccountFactory;
+import org.sepehr.jblockchain.account.SimpleKeyFactory;
 import org.sepehr.jblockchain.proofwork.SimpleBlockMiner;
 import org.sepehr.jblockchain.timestampserver.Block;
 import org.sepehr.jblockchain.timestampserver.SimpleTimestampServer;
@@ -56,6 +56,7 @@ public class TimestampServerTest {
 
         Assertions.assertNotNull(transaction2);
         Assertions.assertTrue(timestampServer.appendTransaction(transaction2));
+        Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
         Block block2 = timestampServer.mineCurrentBlock(Long.MAX_VALUE);
         Assertions.assertTrue(timestampServer.acceptBlock(block2));
 
@@ -63,6 +64,7 @@ public class TimestampServerTest {
         Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
 
         List<Utxo> inputs3 = timestampServer.getInputs(receiver1.getPublicKey());
+        Assertions.assertEquals(100, inputs3.stream().map(Utxo::getValue).reduce(Long::sum).get());
         Transaction transaction3 = transactionManager.createTransaction(
                 receiver1.getPublicKey(),
                 receiver1.getPrivateKey(),
@@ -72,11 +74,6 @@ public class TimestampServerTest {
         );
         Assertions.assertNotNull(transaction3);
         Assertions.assertFalse(timestampServer.appendTransaction(transaction3));
-
-
-//        Transaction transaction3 = transactionFactory.createTransaction(receiver2.getPublicKey(), receiver2.getPrivateKey(), 100,
-//                receiver3.getPublicKey(), List.of(transaction1.getOut0())); // Spend transaction
-//        Assertions.assertFalse(timestampServer.appendTransaction(transaction3));
     }
 
 }

@@ -1,4 +1,4 @@
-package org.sepehr.jblockchain.factory;
+package org.sepehr.jblockchain.account;
 
 import java.security.*;
 import java.util.Random;

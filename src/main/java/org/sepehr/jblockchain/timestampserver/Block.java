@@ -4,7 +4,7 @@ import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
-import org.sepehr.jblockchain.factory.Account;
+import org.sepehr.jblockchain.account.Account;
 import org.sepehr.jblockchain.transaction.SimpleTransactionManager;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;

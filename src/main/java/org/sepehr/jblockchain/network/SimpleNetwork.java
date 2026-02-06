@@ -41,7 +41,7 @@ public abstract class SimpleNetwork implements Network {
         timestampServer.acceptBlock(currentBlock);
         Block minedBlock = currentBlock;
         broadcastBlock(minedBlock);
-       // currentBlock = new Block(timestampServer.getHash());
+        currentBlock = new Block(currentBlock.getHash(), currentBlock.getIdx()+1);
     }
 
     @Override
