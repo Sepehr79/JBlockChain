@@ -8,6 +8,7 @@ import java.security.PublicKey;
 
 @RequiredArgsConstructor
 @Getter
+@Setter
 public class Utxo {
 
     private final PublicKey receiver;
@@ -15,11 +16,8 @@ public class Utxo {
     private final byte[] txid;
     private final int vout;
 
-    @Setter
     private boolean spent = false;
-    @Setter
     private boolean confirmed = false;
-    @Setter
     private int blockHeight;
 
 }

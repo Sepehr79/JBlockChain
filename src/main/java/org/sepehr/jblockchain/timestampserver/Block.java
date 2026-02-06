@@ -9,8 +9,6 @@ import org.sepehr.jblockchain.transaction.SimpleTransactionManager;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
 
-import java.nio.ByteBuffer;
-import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.List;
 

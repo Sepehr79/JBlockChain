@@ -27,7 +27,6 @@ public class SimpleTransactionManager implements TransactionManager {
             transaction.setHash(transactionHash);
             transaction.setOut0(new Utxo(receiverPublic, amount, transactionHash, 0));
             transaction.setOut1(new Utxo(senderPublic, sum - amount, transactionHash, 1));
-            transaction.setInputs(inputs);
             var signature = Signature.getInstance("SHA1withDSA", "SUN");
             signature.initSign(senderPrivate);
             signature.update(transaction.getHash());

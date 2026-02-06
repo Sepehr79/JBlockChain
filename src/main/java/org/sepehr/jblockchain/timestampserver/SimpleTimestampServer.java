@@ -7,10 +7,8 @@ import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.TransactionManager;
 import org.sepehr.jblockchain.transaction.Utxo;
 
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class SimpleTimestampServer implements TimestampServer {
@@ -37,34 +35,18 @@ public class SimpleTimestampServer implements TimestampServer {
     }
 
     @Override
-    public Transaction createTransaction(PublicKey senderPublic,
-                                         PrivateKey senderPrivate,
-                                         long amount,
-                                         PublicKey receiverPublic) {
-        List<Utxo> inputs = getInputs(senderPublic);
-        return transactionManager.createTransaction(senderPublic, senderPrivate, amount, receiverPublic, inputs);
-    }
-
-    @Override
     public boolean acceptBlock(Block block) {
         if (blockMiner.verifyBlock(block) && verifyTransactions(block.getItems())) {
             int idx = block.getIdx();
             for (Transaction transaction: block.getItems()) {
-                transactionManager.verifyTransaction(transaction, transaction.getInputs());
+                List<Utxo> inputs = getInputs(transaction.getSender());
+                for (Utxo utxo: inputs) {
+                    utxo.setSpent(true);
+                }
                 transaction.getOut0().setConfirmed(true);
                 transaction.getOut0().setBlockHeight(idx);
                 transaction.getOut1().setConfirmed(true);
                 transaction.getOut1().setBlockHeight(idx);
-                List<Utxo> inputs = transaction.getInputs();
-                for (Utxo utxo: inputs) {
-                    Block b = blocks.get(utxo.getBlockHeight());
-                    for (Transaction t: b.getItems()) {
-                        if (Arrays.equals(t.getOut0().getTxid(), utxo.getTxid()))
-                            t.getOut0().setSpent(true);
-                        if (Arrays.equals(t.getOut1().getTxid(), utxo.getTxid()))
-                            t.getOut1().setSpent(true);
-                    }
-                }
             }
             this.blocks.add(block);
             currentBlock = new Block(block.getHash(), block.getIdx() + 1);
@@ -104,7 +86,8 @@ public class SimpleTimestampServer implements TimestampServer {
         return true;
     }
 
-    private List<Utxo> getInputs(PublicKey senderPublic) {
+    @Override
+    public List<Utxo> getInputs(PublicKey senderPublic) {
         List<Utxo> inputs = new ArrayList<>();
         for (Block block: blocks)
             for (Transaction t: block.getItems()) {

@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.security.PublicKey;
-import java.util.List;
 
 
 @Getter
@@ -16,9 +15,6 @@ public class Transaction {
     private final PublicKey receiver;
 
     private final long amount;
-
-    @Setter
-    private List<Utxo> inputs;
 
     @Setter
     private Utxo out0;

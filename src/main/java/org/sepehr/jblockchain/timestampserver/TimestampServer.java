@@ -1,15 +1,12 @@
 package org.sepehr.jblockchain.timestampserver;
 
 import org.sepehr.jblockchain.transaction.Transaction;
+import org.sepehr.jblockchain.transaction.Utxo;
 
-import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.List;
 
 public interface TimestampServer {
-    Transaction createTransaction(PublicKey senderPublic,
-                              PrivateKey senderPrivate,
-                              long amount,
-                              PublicKey receiverPublic);
 
     boolean acceptBlock(Block block);
 
@@ -18,4 +15,6 @@ public interface TimestampServer {
     Block mineCurrentBlock(long timeout);
 
     boolean appendTransaction(Transaction transaction);
+
+    List<Utxo> getInputs(PublicKey senderPublic);
 }
