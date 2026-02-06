@@ -62,7 +62,7 @@ public class TransactionTest {
         Transaction transaction2 = transactionFactory.createTransaction(
                 receiver.getPublicKey(),
                 receiver.getPrivateKey(),
-                300,
+                500,
                 receiver2.getPublicKey(),
                 inputs
         );
@@ -72,7 +72,7 @@ public class TransactionTest {
         Transaction transaction3 = transactionFactory.createTransaction(
                 receiver.getPublicKey(),
                 receiver.getPrivateKey(),
-                100,
+                500,
                 receiver3.getPublicKey(),
                 inputs
         );
