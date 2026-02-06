@@ -31,6 +31,7 @@ public class TimestampServerTest {
                 new SimpleTransactionManager(),
                 new SimpleBlockMiner(2)
         );
+        Assertions.assertEquals(0, timestampServer.getCurrentBlockIdx());
 
         List<Utxo> inputs1 = timestampServer.getInputs(baseAccount.getPublicKey());
         Transaction transaction1 = transactionManager.createTransaction(
@@ -42,8 +43,8 @@ public class TimestampServerTest {
         );
         Assertions.assertNotNull(transaction1);
         timestampServer.appendTransaction(transaction1);
-        Block block = timestampServer.mineCurrentBlock(Long.MAX_VALUE);
-        Assertions.assertTrue(timestampServer.acceptBlock(block));
+        Assertions.assertTrue(timestampServer.mineCurrentBlock(Long.MAX_VALUE));
+        Assertions.assertEquals(1, timestampServer.getCurrentBlockIdx());
 
         List<Utxo> inputs2 = timestampServer.getInputs(receiver1.getPublicKey());
         Transaction transaction2 = transactionManager.createTransaction(
@@ -56,9 +57,10 @@ public class TimestampServerTest {
 
         Assertions.assertNotNull(transaction2);
         Assertions.assertTrue(timestampServer.appendTransaction(transaction2));
+        // Prevent double spending in current block
         Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
-        Block block2 = timestampServer.mineCurrentBlock(Long.MAX_VALUE);
-        Assertions.assertTrue(timestampServer.acceptBlock(block2));
+        Assertions.assertTrue(timestampServer.mineCurrentBlock(Long.MAX_VALUE));
+        Assertions.assertEquals(2, timestampServer.getCurrentBlockIdx());
 
         // Prevent double spending
         Assertions.assertFalse(timestampServer.appendTransaction(transaction2));

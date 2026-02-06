@@ -63,9 +63,9 @@ public class SimpleTimestampServer implements TimestampServer {
     }
 
     @Override
-    public Block mineCurrentBlock(long timeout) {
+    public boolean mineCurrentBlock(long timeout) {
         if (blockMiner.mine(this.currentBlock, timeout)) {
-            return currentBlock;
+            return this.acceptBlock(currentBlock);
         }
         throw new RuntimeException("Mining block timeout");
     }
@@ -99,6 +99,11 @@ public class SimpleTimestampServer implements TimestampServer {
                     inputs.add(t.getOut1());
             }
         return inputs;
+    }
+
+    @Override
+    public int getCurrentBlockIdx() {
+        return blocks.get(blocks.size()-1).getIdx();
     }
 
     private boolean sameSenderInBlock(Block block) {

@@ -12,9 +12,11 @@ public interface TimestampServer {
 
     byte[] getHash();
 
-    Block mineCurrentBlock(long timeout);
+    boolean mineCurrentBlock(long timeout);
 
     boolean appendTransaction(Transaction transaction);
 
     List<Utxo> getInputs(PublicKey senderPublic);
+
+    int getCurrentBlockIdx();
 }
