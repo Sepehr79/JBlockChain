@@ -11,7 +11,11 @@ public interface TimestampServer {
                               long amount,
                               PublicKey receiverPublic);
 
-    void acceptBlock(Block block);
+    boolean acceptBlock(Block block);
 
     byte[] getHash();
+
+    Block mineCurrentBlock(long timeout);
+
+    void appendTransaction(Transaction transaction);
 }

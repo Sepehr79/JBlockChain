@@ -20,7 +20,7 @@ public class SimpleKeyFactory implements KeyFactory {
         }
     }
 
-    public KeyPair creatorKeyPair() {
+    public KeyPair generateBaseKeyPair() {
         try {
             final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
             final SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG", "SUN");

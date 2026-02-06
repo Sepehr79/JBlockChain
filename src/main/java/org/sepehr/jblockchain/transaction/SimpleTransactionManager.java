@@ -27,6 +27,7 @@ public class SimpleTransactionManager implements TransactionManager {
             transaction.setHash(transactionHash);
             transaction.setOut0(new Utxo(receiverPublic, amount, transactionHash, 0));
             transaction.setOut1(new Utxo(senderPublic, sum - amount, transactionHash, 1));
+            transaction.setInputs(inputs);
             var signature = Signature.getInstance("SHA1withDSA", "SUN");
             signature.initSign(senderPrivate);
             signature.update(transaction.getHash());
@@ -35,7 +36,8 @@ public class SimpleTransactionManager implements TransactionManager {
             return transaction;
         } catch (NoSuchAlgorithmException | SignatureException | NoSuchProviderException | InvalidKeyException e) {
             throw new RuntimeException(e);
-        }    }
+        }
+    }
 
     @Override
     public boolean verifyTransaction(Transaction transaction, List<Utxo> inputs) {

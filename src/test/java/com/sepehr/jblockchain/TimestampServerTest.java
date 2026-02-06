@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.sepehr.jblockchain.factory.SimpleAccountFactory;
 import org.sepehr.jblockchain.factory.SimpleKeyFactory;
 import org.sepehr.jblockchain.factory.Account;
+import org.sepehr.jblockchain.proofwork.SimpleBlockMiner;
+import org.sepehr.jblockchain.timestampserver.Block;
 import org.sepehr.jblockchain.timestampserver.SimpleTimestampServer;
 import org.sepehr.jblockchain.transaction.SimpleTransactionManager;
 import org.sepehr.jblockchain.transaction.Transaction;
@@ -21,26 +23,38 @@ public class TimestampServerTest {
     @Test
     void preventDoubleSpendingTest() {
         SimpleKeyFactory simpleKeyFactory = new SimpleKeyFactory();
-        KeyPair keyPair = simpleKeyFactory.creatorKeyPair();
 
-        Account baseAccount = new Account(keyPair.getPrivate(), keyPair.getPublic());
+        Account baseAccount = accountFactory.baseAccount();
         Account receiver1 = accountFactory.buildAccount();
         Account receiver2 = accountFactory.buildAccount();
         Account receiver3 = accountFactory.buildAccount();
         Account receiver4 = accountFactory.buildAccount();
-        final SimpleTimestampServer timestampServer = new SimpleTimestampServer(keyPair, new SimpleTransactionManager());
 
-        Transaction transaction = timestampServer.createTransaction(
+        final SimpleTimestampServer timestampServer = new SimpleTimestampServer(
+                baseAccount,
+                new SimpleTransactionManager(),
+                new SimpleBlockMiner(2)
+        );
+
+        Transaction transaction1 = timestampServer.createTransaction(
                 baseAccount.getPublicKey(),
                 baseAccount.getPrivateKey(),
                 500,
                 receiver1.getPublicKey()
         );
-        Assertions.assertNotNull(transaction);
+        Assertions.assertNotNull(transaction1);
+        timestampServer.appendTransaction(transaction1);
+        Block block = timestampServer.mineCurrentBlock(Long.MAX_VALUE);
+        Assertions.assertTrue(timestampServer.acceptBlock(block));
 
-//        Transaction transaction1 = transactionFactory.createTransaction(baseAccount.getPublicKey(), baseAccount.getPrivateKey(), 400,
-//                receiver1.getPublicKey(), List.of(new Utxo(sender.getPublicKey(), 1000, "".getBytes(), 0)));
-//        SimpleKeyFactory keyFactory = new SimpleKeyFactory();
+
+//        Transaction transaction2 = timestampServer.createTransaction(
+//                receiver1.getPublicKey(),
+//                receiver1.getPrivateKey(),
+//                400,
+//                receiver2.getPublicKey()
+//        );
+
 //        SimpleTimestampServer timestampServer = new SimpleTimestampServer(keyFactory.creatorKeyPair(), new SimpleTransactionManager());
 //        Assertions.assertTrue(timestampServer.appendTransaction(transaction1));
 //

@@ -23,6 +23,8 @@ public class TransactionTest {
         Assertions.assertNotEquals(sender.getPublicKey(), receiver.getPublicKey());
         Utxo utxo1 = new Utxo(sender.getPublicKey(), 300, "".getBytes(), 0);
         Utxo utxo2 = new Utxo(sender.getPublicKey(), 400, "".getBytes(), 0);
+        utxo1.setConfirmed(true);
+        utxo2.setConfirmed(true);
         List<Utxo> inputs = List.of(utxo1, utxo2);
         Transaction transaction = transactionFactory.createTransaction(
                 sender.getPublicKey(),
@@ -41,10 +43,11 @@ public class TransactionTest {
         Account receiver2 = accountFactory.buildAccount();
         Account receiver3 = accountFactory.buildAccount();
 
-        List<Utxo> inputs = List.of(
-                new Utxo(sender.getPublicKey(), 500, "".getBytes(), 0),
-                new Utxo(sender.getPublicKey(), 600, "".getBytes(), 1)
-        );
+        Utxo utxo1 = new Utxo(sender.getPublicKey(), 500, "".getBytes(), 0);
+        Utxo utxo2 = new Utxo(sender.getPublicKey(), 600, "".getBytes(), 1);
+        utxo1.setConfirmed(true);
+        utxo2.setConfirmed(true);
+        List<Utxo> inputs = List.of(utxo1, utxo2);
 
         Transaction transaction1 = transactionFactory.createTransaction(
                 sender.getPublicKey(),
@@ -54,6 +57,7 @@ public class TransactionTest {
                 inputs
         );
 
+        transaction1.getOut0().setConfirmed(true);
         List<Utxo> inputs1 = List.of(transaction1.getOut0());
         Transaction transaction2 = transactionFactory.createTransaction(
                 receiver.getPublicKey(),

@@ -20,7 +20,7 @@ public abstract class SimpleNetwork implements Network {
         this.transactionManager = transactionManager;
         this.timestampServer = timestampServer;
         this.blockMiner = blockMiner;
-        currentBlock = new Block(timestampServer.getHash());
+//        currentBlock = new Block(timestampServer.getHash());
     }
 
 
@@ -41,7 +41,7 @@ public abstract class SimpleNetwork implements Network {
         timestampServer.acceptBlock(currentBlock);
         Block minedBlock = currentBlock;
         broadcastBlock(minedBlock);
-        currentBlock = new Block(timestampServer.getHash());
+       // currentBlock = new Block(timestampServer.getHash());
     }
 
     @Override

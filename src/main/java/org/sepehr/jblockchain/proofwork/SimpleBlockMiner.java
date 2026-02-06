@@ -32,12 +32,4 @@ public class SimpleBlockMiner implements BlockMiner {
         }
         return true;
     }
-
-    private boolean satisfyMineCondition(byte[] bytes) {
-        for (int i = 0; i < difficulty; i++) {
-            if (bytes[i] != 0)
-                return false;
-        }
-        return true;
-    }
 }

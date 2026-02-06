@@ -18,5 +18,10 @@ public class SimpleAccountFactory implements AccountFactory {
         );
     }
 
+    public Account baseAccount() {
+        final KeyPair keyPair = ((SimpleKeyFactory) keyFactory).generateBaseKeyPair();
+        return new Account(keyPair.getPrivate(), keyPair.getPublic());
+    }
+
 
 }
