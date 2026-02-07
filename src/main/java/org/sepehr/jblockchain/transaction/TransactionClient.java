@@ -1,5 +1,6 @@
 package org.sepehr.jblockchain.transaction;
 
+import org.sepehr.jblockchain.timestampserver.TimestampServer;
 import org.sepehr.jblockchain.verification.MerkleTree;
 
 import java.security.PrivateKey;
@@ -14,7 +15,7 @@ public interface TransactionClient {
                                   PublicKey receiverPublic,
                                   List<Utxo> inputs);
 
-    boolean verifyTransaction(Transaction transaction, List<Utxo> inputs);
-
     boolean verifyTransaction(Transaction transaction, MerkleTree.TransactionProof transactionProof);
+
+    List<Utxo> getAccountInputs(TimestampServer server, PublicKey owner);
 }

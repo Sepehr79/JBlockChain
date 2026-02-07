@@ -9,6 +9,7 @@ import org.sepehr.jblockchain.transaction.SimpleTransactionClient;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
 
+import java.security.*;
 import java.util.List;
 
 public class TransactionTest {
@@ -33,7 +34,7 @@ public class TransactionTest {
                 receiver.getPublicKey(),
                 inputs
         );
-        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction, inputs));
+        Assertions.assertTrue(verifyTransaction(transaction, inputs));
     }
 
     @Test
@@ -77,9 +78,33 @@ public class TransactionTest {
                 inputs
         );
 
-        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction1, inputs));
-        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction2, inputs1));
-        Assertions.assertTrue(transactionFactory.verifyTransaction(transaction3, inputs1));
+        Assertions.assertTrue(verifyTransaction(transaction1, inputs));
+        Assertions.assertTrue(verifyTransaction(transaction2, inputs1));
+        Assertions.assertTrue(verifyTransaction(transaction3, inputs1));
     }
 
+    /**
+     * Verify transaction signature and amount
+     */
+    boolean verifyTransaction(Transaction transaction, List<Utxo> inputs) {
+        try {
+            var signature = Signature.getInstance("SHA1withDSA", "SUN");
+            PublicKey receiver = transaction.getSender();
+            long sum = 0;
+            for (Utxo utxo: inputs) {
+                if (!receiver.equals(utxo.getReceiver()) || !utxo.isConfirmed() || utxo.isSpent())
+                    return false;
+                sum += utxo.getValue();
+            }
+
+            if (transaction.getAmount() > sum)
+                return false;
+
+            signature.initVerify(transaction.getSender());
+            signature.update(transaction.getHash());
+            return signature.verify(transaction.getTransactionSignature());
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | SignatureException | InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

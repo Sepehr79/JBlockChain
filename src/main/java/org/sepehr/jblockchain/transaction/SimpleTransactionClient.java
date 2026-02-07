@@ -1,5 +1,6 @@
 package org.sepehr.jblockchain.transaction;
 
+import org.sepehr.jblockchain.timestampserver.TimestampServer;
 import org.sepehr.jblockchain.verification.HashManager;
 import org.sepehr.jblockchain.verification.MerkleTree;
 
@@ -36,31 +37,13 @@ public class SimpleTransactionClient implements TransactionClient {
     }
 
     @Override
-    public boolean verifyTransaction(Transaction transaction, List<Utxo> inputs) {
-        try {
-            var signature = Signature.getInstance("SHA1withDSA", "SUN");
-            PublicKey receiver = transaction.getSender();
-            long sum = 0;
-            for (Utxo utxo: inputs) {
-                if (!receiver.equals(utxo.getReceiver()) || !utxo.isConfirmed() || utxo.isSpent())
-                    return false;
-                sum += utxo.getValue();
-            }
-
-            if (transaction.getAmount() > sum)
-                return false;
-
-            signature.initVerify(transaction.getSender());
-            signature.update(transaction.getHash());
-            return signature.verify(transaction.getTransactionSignature());
-        } catch (NoSuchAlgorithmException | NoSuchProviderException | SignatureException | InvalidKeyException e) {
-            throw new RuntimeException(e);
-        }
+    public boolean verifyTransaction(Transaction transaction, MerkleTree.TransactionProof transactionProof) {
+        return MerkleTree.verifyTransaction(transaction, transactionProof.getProofElement(), transactionProof.getRootHash());
     }
 
     @Override
-    public boolean verifyTransaction(Transaction transaction, MerkleTree.TransactionProof transactionProof) {
-        return MerkleTree.verifyTransaction(transaction, transactionProof.getProofElement(), transactionProof.getRootHash());
+    public List<Utxo> getAccountInputs(TimestampServer server, PublicKey owner) {
+        return server.getTransactionInputs(owner);
     }
 
 

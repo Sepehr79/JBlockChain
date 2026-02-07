@@ -24,7 +24,7 @@ public class SimpleTimestampServer implements TimestampServer {
         currentBlock = new Block(baseAccount, maxSupply);
         this.mineCurrentBlock(Long.MAX_VALUE);
         this.blocks.add(currentBlock);
-        currentBlock = new Block(currentBlock.getPrevHash(), 1);
+        currentBlock = new Block(currentBlock.getPrevHash(), 0);
     }
 
     @Override
