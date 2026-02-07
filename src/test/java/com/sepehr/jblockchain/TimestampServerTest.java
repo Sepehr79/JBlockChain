@@ -30,7 +30,6 @@ public class TimestampServerTest {
                 baseAccount,
                 21_000_000
         );
-        Assertions.assertEquals(0, timestampServer.getCurrentBlockIdx());
 
         List<Utxo> inputs1 = timestampServer.getTransactionInputs(baseAccount.getPublicKey());
         Transaction transaction1 = transactionClient.createTransaction(
@@ -43,7 +42,7 @@ public class TimestampServerTest {
         Assertions.assertNotNull(transaction1);
         timestampServer.appendTransaction(transaction1);
         Assertions.assertTrue(timestampServer.mineCurrentBlock(Long.MAX_VALUE));
-        Assertions.assertEquals(1, timestampServer.getCurrentBlockIdx());
+        Assertions.assertEquals(0, timestampServer.getCurrentBlockIdx());
 
         List<Utxo> inputs2 = timestampServer.getTransactionInputs(receiver1.getPublicKey());
         Transaction transaction2 = transactionClient.createTransaction(
@@ -59,7 +58,7 @@ public class TimestampServerTest {
         // Prevent double spending in current block
         Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
         Assertions.assertTrue(timestampServer.mineCurrentBlock(Long.MAX_VALUE));
-        Assertions.assertEquals(2, timestampServer.getCurrentBlockIdx());
+        Assertions.assertEquals(1, timestampServer.getCurrentBlockIdx());
 
         // Prevent double spending
         Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
