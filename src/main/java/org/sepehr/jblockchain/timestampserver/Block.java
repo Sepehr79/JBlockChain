@@ -27,8 +27,7 @@ public class Block {
 
     private MerkleTree merkleTree;
 
-    public Block(Account baseAccount, int idx) {
-        this.idx = idx;
+    public Block(Account baseAccount) {
         List<Utxo> inputs = List.of(new Utxo(baseAccount.getPublicKey(), 21_000_000, "".getBytes(), 0));
         inputs.forEach(utxo -> utxo.setConfirmed(true));
         this.prevHash = "".getBytes();
@@ -45,7 +44,8 @@ public class Block {
         byte[] hash = HashManager.getInstance().hashTransaction(transaction, inputs);
         transaction.setHash(hash);
         items.add(transaction);
-        this.rootHash = "";
+        this.merkleTree = new MerkleTree(items);
+        this.rootHash = merkleTree.getMerkleRoot();
     }
 
     public Block(byte[] prevHash, int idx) {

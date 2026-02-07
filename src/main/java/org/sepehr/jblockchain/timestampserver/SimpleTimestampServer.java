@@ -23,7 +23,7 @@ public class SimpleTimestampServer implements TimestampServer {
 
     public SimpleTimestampServer(Account baseAccount,
                                  BlockMiner blockMiner) {
-        currentBlock = new Block(baseAccount, 0);
+        currentBlock = new Block(baseAccount);
         this.blockMiner = blockMiner;
         this.mineCurrentBlock(Long.MAX_VALUE);
         this.blocks.add(currentBlock);
