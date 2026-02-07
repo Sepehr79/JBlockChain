@@ -1,7 +1,5 @@
 package org.sepehr.jblockchain.timestampserver;
 
-import com.google.common.hash.Hasher;
-import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
 import org.sepehr.jblockchain.account.Account;
@@ -23,7 +21,7 @@ public class Block {
     private final byte[] prevHash;
     private long nonce;
 
-    private String rootHash;
+    private byte[] transactionRootHash;
 
     private MerkleTree merkleTree;
 
@@ -45,13 +43,13 @@ public class Block {
         transaction.setHash(hash);
         items.add(transaction);
         this.merkleTree = new MerkleTree(items);
-        this.rootHash = merkleTree.getMerkleRoot();
+        this.transactionRootHash = merkleTree.getMerkleRoot();
     }
 
     public Block(byte[] prevHash, int idx) {
         this.prevHash = prevHash;
         this.idx = idx;
-        this.rootHash = "";
+        this.transactionRootHash = "".getBytes();
     }
 
     public byte[] getHash() {
@@ -61,7 +59,7 @@ public class Block {
     public void appendTransaction(Transaction transaction) {
         items.add(transaction);
         merkleTree = new MerkleTree(items);
-        this.rootHash = merkleTree.getMerkleRoot();
+        this.transactionRootHash = merkleTree.getMerkleRoot();
     }
 
     public void increaseNonce() {

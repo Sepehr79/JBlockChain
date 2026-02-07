@@ -17,6 +17,10 @@ public class HashManager {
         return Hashing.sha256().hashBytes(value.getBytes()).asBytes();
     }
 
+    public byte[] hash(byte[] value) {
+        return Hashing.sha256().hashBytes(value).asBytes();
+    }
+
     public byte[] hashTransaction(Transaction transaction, List<Utxo> inputs) {
         Hasher hasher = Hashing.sha256().newHasher();
         hasher.putLong(transaction.getAmount());
@@ -28,7 +32,7 @@ public class HashManager {
 
     public byte[] hashBlock(Block block) {
         Hasher hasher = Hashing.sha256().newHasher();
-        hasher.putBytes(block.getRootHash().getBytes());
+        hasher.putBytes(block.getTransactionRootHash());
         hasher.putLong(block.getNonce());
         hasher.putInt(block.getIdx());
         hasher.putBytes(block.getPrevHash());

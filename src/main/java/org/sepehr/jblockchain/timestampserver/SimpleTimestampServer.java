@@ -100,7 +100,7 @@ public class SimpleTimestampServer implements TimestampServer {
     public MerkleTree.TransactionProof getProof(Transaction transaction) {
         for (Block block: blocks) {
             if (block.getItems().contains(transaction))
-                return new MerkleTree.TransactionProof(block.getMerkleTree().getProof(transaction), block.getRootHash());
+                return new MerkleTree.TransactionProof(block.getMerkleTree().getProof(transaction), block.getTransactionRootHash());
         }
         return null;
     }

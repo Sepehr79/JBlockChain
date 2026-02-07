@@ -1,11 +1,12 @@
 package org.sepehr.jblockchain.verification;
 
-import com.google.common.hash.Hashing;
+import com.google.common.primitives.Bytes;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.sepehr.jblockchain.transaction.Transaction;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,14 +21,14 @@ public class MerkleTree {
     @Getter
     public static class TransactionProof {
         private final List<ProofElement> proofElement;
-        private final String rootHash;
+        private final byte[] rootHash;
     }
 
     public static class ProofElement {
-        public final String hash;
+        public final byte[] hash;
         public final boolean isLeft;
 
-        public ProofElement(String hash, boolean isLeft) {
+        public ProofElement(byte[] hash, boolean isLeft) {
             this.hash = hash;
             this.isLeft = isLeft;
         }
@@ -37,15 +38,15 @@ public class MerkleTree {
      * Node class representing each node in the Merkle Tree
      */
     static class Node {
-        String hash;
+        byte[] hash;
         Node left;
         Node right;
 
-        Node(String hash) {
+        Node(byte[] hash) {
             this.hash = hash;
         }
 
-        Node(String hash, Node left, Node right) {
+        Node(byte[] hash, Node left, Node right) {
             this.hash = hash;
             this.left = left;
             this.right = right;
@@ -98,7 +99,7 @@ public class MerkleTree {
             }
 
             // Create parent node with combined hash
-            String combinedHash = hash(left.hash + right.hash);
+            byte[] combinedHash = hash(Bytes.concat(left.hash, right.hash));
             parentNodes.add(new Node(combinedHash, left, right));
         }
 
@@ -106,37 +107,9 @@ public class MerkleTree {
     }
 
     /**
-     * SHA-256 hashing function
-     */
-    private static String hash(Transaction transaction) {
-        byte[] hashBytes = transaction.getHash();
-        // Convert to hexadecimal string
-        return getString(hashBytes);
-    }
-
-    private static String hash(String string) {
-        byte[] hashBytes = Hashing.sha256().hashBytes(string.getBytes()).asBytes();
-
-        // Convert to hexadecimal string
-        return getString(hashBytes);
-    }
-
-    private static String getString(byte[] hashBytes) {
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : hashBytes) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
-    }
-
-    /**
      * Get the Merkle Root
      */
-    public String getMerkleRoot() {
+    public byte[] getMerkleRoot() {
         return root != null ? root.hash : null;
     }
 
@@ -159,7 +132,7 @@ public class MerkleTree {
     /**
      * Recursive method to build the proof path
      */
-    private boolean getProofRecursive(Node node, String targetHash, List<ProofElement> proof,
+    private boolean getProofRecursive(Node node, byte[] targetHash, List<ProofElement> proof,
                                       int index, int totalLeaves) {
         if (node == null) {
             return false;
@@ -167,7 +140,7 @@ public class MerkleTree {
 
         // Leaf node
         if (node.left == null && node.right == null) {
-            return node.hash.equals(targetHash);
+            return Arrays.equals(node.hash, targetHash);
         }
 
         // Determine which subtree to search
@@ -209,46 +182,42 @@ public class MerkleTree {
         return powerOfTwo;
     }
 
+    private static byte[] hash(Transaction transaction) {
+        return transaction.getHash();
+    }
+
+    private static byte[] hash(byte[] input) {
+        return HashManager.getInstance().hash(input);
+    }
+
+    private static String getString(byte[] hashBytes) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hashBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
     /**
      * Verify a transaction using its proof
      */
-    public static boolean verifyTransaction(Transaction transaction, List<ProofElement> proof, String merkleRoot) {
-        String currentHash = hash(transaction);
+    public static boolean verifyTransaction(Transaction transaction, List<ProofElement> proof, byte[] merkleRoot) {
+        byte[] currentHash = hash(transaction);
 
         for (ProofElement element : proof) {
             if (element.isLeft) {
                 // Sibling goes on the left
-                currentHash = hash(element.hash + currentHash);
+                currentHash = hash(Bytes.concat(element.hash, currentHash));
             } else {
                 // Sibling goes on the right
-                currentHash = hash(currentHash + element.hash);
+                currentHash = hash(Bytes.concat(currentHash, element.hash));
             }
         }
 
-        return currentHash.equals(merkleRoot);
-    }
-
-    /**
-     * Print the tree structure (for debugging)
-     */
-    public void printTree() {
-        printTreeRecursive(root, "", true);
-    }
-
-    private void printTreeRecursive(Node node, String prefix, boolean isTail) {
-        if (node != null) {
-            System.out.println(prefix + (isTail ? "└── " : "├── ") +
-                    node.hash.substring(0, 8) + "...");
-
-            if (node.left != null || node.right != null) {
-                if (node.left != null) {
-                    printTreeRecursive(node.left, prefix + (isTail ? "    " : "│   "),
-                            node.right == null);
-                }
-                if (node.right != null) {
-                    printTreeRecursive(node.right, prefix + (isTail ? "    " : "│   "), true);
-                }
-            }
-        }
+        return Arrays.equals(currentHash, merkleRoot);
     }
 }

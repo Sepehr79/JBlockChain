@@ -59,9 +59,8 @@ public class MerkleTreeTest {
 
         List<Transaction> transactions = List.of(transaction1, transaction2, transaction3);
         MerkleTree merkleTree = new MerkleTree(transactions);
-        merkleTree.printTree();
 
-        String root = merkleTree.getMerkleRoot();
+        byte[] root = merkleTree.getMerkleRoot();
         List<MerkleTree.ProofElement> proof = merkleTree.getProof(transaction2);
         Assertions.assertNull(merkleTree.getProof(transaction4));
         Assertions.assertTrue(merkleTree.verifyTransaction(transaction2, proof, root));
