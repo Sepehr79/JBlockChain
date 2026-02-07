@@ -8,9 +8,9 @@ import org.sepehr.jblockchain.account.Account;
 import org.sepehr.jblockchain.transaction.SimpleTransactionClient;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
+import org.sepehr.jblockchain.verification.HashManager;
 import org.sepehr.jblockchain.verification.MerkleTree;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,24 +29,21 @@ public class Block {
 
     public Block(Account baseAccount, int idx) {
         this.idx = idx;
-        Utxo input = new Utxo(baseAccount.getPublicKey(), 21_000_000, "".getBytes(), 0);
-        input.setConfirmed(true);
-        this.prevHash = Hashing.sha256().hashBytes("".getBytes()).asBytes();
+        List<Utxo> inputs = List.of(new Utxo(baseAccount.getPublicKey(), 21_000_000, "".getBytes(), 0));
+        inputs.forEach(utxo -> utxo.setConfirmed(true));
+        this.prevHash = "".getBytes();
         SimpleTransactionClient simpleTransactionManager = new SimpleTransactionClient();
         Transaction transaction = simpleTransactionManager.createTransaction(
                 baseAccount.getPublicKey(),
                 baseAccount.getPrivateKey(),
                 21_000_000,
                 baseAccount.getPublicKey(),
-                List.of(input)
+                inputs
         );
         transaction.getOut1().setConfirmed(true);
         transaction.getOut0().setConfirmed(true);
-        Hasher hasher = Hashing.sha256().newHasher();
-        hasher.putBytes(input.getTxid());
-        hasher.putBytes(baseAccount.getPublicKey().getEncoded());
-        byte[] transactionHash = hasher.hash().asBytes();
-        transaction.setHash(transactionHash);
+        byte[] hash = HashManager.hashTransaction(transaction, inputs);
+        transaction.setHash(hash);
         items.add(transaction);
         this.rootHash = "";
     }
@@ -58,12 +55,7 @@ public class Block {
     }
 
     public byte[] getHash() {
-        Hasher hasher = Hashing.sha256().newHasher();
-        hasher.putBytes(rootHash.getBytes());
-        hasher.putLong(nonce);
-        hasher.putInt(idx);
-        hasher.putBytes(prevHash);
-        return hasher.hash().asBytes();
+        return HashManager.hashBlock(this);
     }
 
     public void appendTransaction(Transaction transaction) {

@@ -1,7 +1,6 @@
 package org.sepehr.jblockchain.transaction;
 
-import com.google.common.hash.Hasher;
-import com.google.common.hash.Hashing;
+import org.sepehr.jblockchain.verification.HashManager;
 import org.sepehr.jblockchain.verification.MerkleTree;
 
 import java.security.*;
@@ -17,17 +16,14 @@ public class SimpleTransactionClient implements TransactionClient {
                                          List<Utxo> inputs) {
         try {
             var transaction = new Transaction(senderPublic, amount, receiverPublic);
-            Hasher hasher = Hashing.sha256().newHasher();
             long sum = 0;
             for (Utxo utxo: inputs) {
-                hasher.putBytes(utxo.getTxid());
                 sum += utxo.getValue();
             }
-            hasher.putBytes(senderPublic.getEncoded());
-            byte[] transactionHash = hasher.hash().asBytes();
-            transaction.setHash(transactionHash);
-            transaction.setOut0(new Utxo(receiverPublic, amount, transactionHash, 0));
-            transaction.setOut1(new Utxo(senderPublic, sum - amount, transactionHash, 1));
+            byte[] hash = HashManager.hashTransaction(transaction, inputs);
+            transaction.setHash(hash);
+            transaction.setOut0(new Utxo(receiverPublic, amount, hash, 0));
+            transaction.setOut1(new Utxo(senderPublic, sum - amount, hash, 1));
             var signature = Signature.getInstance("SHA1withDSA", "SUN");
             signature.initSign(senderPrivate);
             signature.update(transaction.getHash());
