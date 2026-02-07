@@ -55,7 +55,7 @@ boolean isValid = client.verifyTransaction(tx, proof);
 
 * **Double Spending Prevention**: The TimestampServer explicitly rejects transactions that attempt to reuse inputs.
 
-* **Cryptographic Integrity**: All transactions are signed via private keys and verified using ECDSA or RSA via Java Security.
+* **Cryptographic Integrity**: All transactions are signed via private keys and verified using DSA via Java Security.
 
 * **Immutable Ledger**: Once a block is mined via the proofofwork package, transactions are cryptographically linked.
 
