@@ -9,11 +9,10 @@ public class ProofOfWorkTest {
 
     @Test
     void mineBlockTest() {
-        SimpleBlockMiner miner = new SimpleBlockMiner(2);
         Block block = new Block("prevHash".getBytes(), 5);
 
-        Assertions.assertTrue(miner.mine(block, 10_000));
-        Assertions.assertTrue(miner.verifyBlock(block));
+        Assertions.assertTrue(SimpleBlockMiner.getInstance().mine(block, 10_000));
+        Assertions.assertTrue(SimpleBlockMiner.getInstance().verifyBlock(block));
     }
 
 }

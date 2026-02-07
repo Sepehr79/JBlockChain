@@ -1,7 +1,7 @@
 package org.sepehr.jblockchain.timestampserver;
 
 import org.sepehr.jblockchain.account.Account;
-import org.sepehr.jblockchain.proofwork.BlockMiner;
+import org.sepehr.jblockchain.proofwork.SimpleBlockMiner;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
 import org.sepehr.jblockchain.verification.MerkleTree;
@@ -14,17 +14,14 @@ import java.util.Set;
 
 public class SimpleTimestampServer implements TimestampServer {
 
-    private final BlockMiner blockMiner;
-
     private Block currentBlock;
 
     private final List<Block> blocks = new ArrayList<>();
 
 
     public SimpleTimestampServer(Account baseAccount,
-                                 BlockMiner blockMiner) {
-        currentBlock = new Block(baseAccount);
-        this.blockMiner = blockMiner;
+                                 long maxSupply) {
+        currentBlock = new Block(baseAccount, maxSupply);
         this.mineCurrentBlock(Long.MAX_VALUE);
         this.blocks.add(currentBlock);
         currentBlock = new Block(currentBlock.getPrevHash(), 1);
@@ -32,7 +29,7 @@ public class SimpleTimestampServer implements TimestampServer {
 
     @Override
     public boolean acceptBlock(Block block) {
-        if (blockMiner.verifyBlock(block) && verifyTransactions(block.getItems()) && !sameSenderInCurrentBlock(block)) {
+        if (SimpleBlockMiner.getInstance().verifyBlock(block) && verifyTransactions(block.getItems()) && !sameSenderInCurrentBlock(block)) {
             int idx = block.getIdx();
             for (Transaction transaction: block.getItems()) {
                 List<Utxo> inputs = getTransactionInputs(transaction.getSender());
@@ -58,7 +55,7 @@ public class SimpleTimestampServer implements TimestampServer {
 
     @Override
     public boolean mineCurrentBlock(long timeout) {
-        if (blockMiner.mine(this.currentBlock, timeout)) {
+        if (SimpleBlockMiner.getInstance().mine(this.currentBlock, timeout)) {
             return this.acceptBlock(currentBlock);
         }
         throw new RuntimeException("Mining block timeout");

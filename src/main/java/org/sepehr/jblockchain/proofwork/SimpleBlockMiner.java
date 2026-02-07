@@ -1,14 +1,18 @@
 package org.sepehr.jblockchain.proofwork;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.sepehr.jblockchain.timestampserver.Block;
 
 @Getter
+@Setter
 public class SimpleBlockMiner implements BlockMiner {
 
-    private final int difficulty;
+    private int difficulty;
 
-    public SimpleBlockMiner(int difficulty) {
+    private static SimpleBlockMiner miner;
+
+    private SimpleBlockMiner(int difficulty) {
         this.difficulty = difficulty;
     }
 
@@ -31,5 +35,11 @@ public class SimpleBlockMiner implements BlockMiner {
                 return false;
         }
         return true;
+    }
+
+    public static SimpleBlockMiner getInstance() {
+        if (miner == null)
+            miner = new SimpleBlockMiner(2);
+        return miner;
     }
 }

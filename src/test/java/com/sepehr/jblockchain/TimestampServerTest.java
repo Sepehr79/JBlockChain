@@ -28,7 +28,7 @@ public class TimestampServerTest {
 
         final SimpleTimestampServer timestampServer = new SimpleTimestampServer(
                 baseAccount,
-                new SimpleBlockMiner(2)
+                21_000_000
         );
         Assertions.assertEquals(0, timestampServer.getCurrentBlockIdx());
 

@@ -27,15 +27,15 @@ public class Block {
 
     private MerkleTree merkleTree;
 
-    public Block(Account baseAccount) {
-        List<Utxo> inputs = List.of(new Utxo(baseAccount.getPublicKey(), 21_000_000, "".getBytes(), 0));
+    public Block(Account baseAccount, long maxSupply) {
+        List<Utxo> inputs = List.of(new Utxo(baseAccount.getPublicKey(), maxSupply, "".getBytes(), 0));
         inputs.forEach(utxo -> utxo.setConfirmed(true));
         this.prevHash = "".getBytes();
         SimpleTransactionClient simpleTransactionManager = new SimpleTransactionClient();
         Transaction transaction = simpleTransactionManager.createTransaction(
                 baseAccount.getPublicKey(),
                 baseAccount.getPrivateKey(),
-                21_000_000,
+                maxSupply,
                 baseAccount.getPublicKey(),
                 inputs
         );
