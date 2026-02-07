@@ -4,6 +4,7 @@ import org.sepehr.jblockchain.account.Account;
 import org.sepehr.jblockchain.proofwork.BlockMiner;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
+import org.sepehr.jblockchain.verification.MerkleTree;
 
 import java.security.*;
 import java.util.ArrayList;
@@ -96,6 +97,15 @@ public class SimpleTimestampServer implements TimestampServer {
     @Override
     public int getCurrentBlockIdx() {
         return blocks.get(blocks.size()-1).getIdx();
+    }
+
+    @Override
+    public MerkleTree.TransactionProof getProof(Transaction transaction) {
+        for (Block block: blocks) {
+            if (block.getItems().contains(transaction))
+                return new MerkleTree.TransactionProof(block.getMerkleTree().getProof(transaction), block.getRootHash());
+        }
+        return null;
     }
 
     private boolean sameSenderInCurrentBlock(Block block) {

@@ -10,6 +10,7 @@ import org.sepehr.jblockchain.timestampserver.SimpleTimestampServer;
 import org.sepehr.jblockchain.transaction.SimpleTransactionClient;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
+import org.sepehr.jblockchain.verification.MerkleTree;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class TimestampServerTest {
     SimpleTransactionClient transactionClient = new SimpleTransactionClient();
 
     @Test
-    void preventDoubleSpendingTest() {
+    void timestampServerTest() {
         Account baseAccount = accountFactory.baseAccount();
         Account receiver1 = accountFactory.buildAccount();
         Account receiver2 = accountFactory.buildAccount();
@@ -74,6 +75,9 @@ public class TimestampServerTest {
         );
         Assertions.assertNotNull(transaction3);
         Assertions.assertFalse(timestampServer.appendTransaction(transaction3));
+
+        MerkleTree.TransactionProof proof = timestampServer.getProof(transaction2);
+        Assertions.assertTrue(transactionClient.verifyTransaction(transaction2, proof));
     }
 
 }

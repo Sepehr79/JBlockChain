@@ -2,6 +2,7 @@ package org.sepehr.jblockchain.transaction;
 
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
+import org.sepehr.jblockchain.verification.MerkleTree;
 
 import java.security.*;
 import java.util.List;
@@ -59,6 +60,11 @@ public class SimpleTransactionClient implements TransactionClient {
         } catch (NoSuchAlgorithmException | NoSuchProviderException | SignatureException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public boolean verifyTransaction(Transaction transaction, MerkleTree.TransactionProof transactionProof) {
+        return MerkleTree.verifyTransaction(transaction, transactionProof.getProofElement(), transactionProof.getRootHash());
     }
 
 

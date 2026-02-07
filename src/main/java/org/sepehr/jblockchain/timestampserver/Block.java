@@ -8,7 +8,9 @@ import org.sepehr.jblockchain.account.Account;
 import org.sepehr.jblockchain.transaction.SimpleTransactionClient;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
+import org.sepehr.jblockchain.verification.MerkleTree;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +23,12 @@ public class Block {
     private final byte[] prevHash;
     private long nonce;
 
+    private String rootHash;
+
+    private MerkleTree merkleTree;
+
     public Block(Account baseAccount, int idx) {
+        this.idx = idx;
         Utxo input = new Utxo(baseAccount.getPublicKey(), 21_000_000, "".getBytes(), 0);
         input.setConfirmed(true);
         this.prevHash = Hashing.sha256().hashBytes("".getBytes()).asBytes();
@@ -41,16 +48,18 @@ public class Block {
         byte[] transactionHash = hasher.hash().asBytes();
         transaction.setHash(transactionHash);
         items.add(transaction);
+        this.rootHash = "";
     }
 
     public Block(byte[] prevHash, int idx) {
         this.prevHash = prevHash;
         this.idx = idx;
+        this.rootHash = "";
     }
 
     public byte[] getHash() {
         Hasher hasher = Hashing.sha256().newHasher();
-        items.forEach(transaction -> hasher.putBytes(transaction.getHash()));
+        hasher.putBytes(rootHash.getBytes());
         hasher.putLong(nonce);
         hasher.putInt(idx);
         hasher.putBytes(prevHash);
@@ -59,6 +68,8 @@ public class Block {
 
     public void appendTransaction(Transaction transaction) {
         items.add(transaction);
+        merkleTree = new MerkleTree(items);
+        this.rootHash = merkleTree.getMerkleRoot();
     }
 
     public void increaseNonce() {

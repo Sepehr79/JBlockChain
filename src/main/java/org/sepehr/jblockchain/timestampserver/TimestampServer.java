@@ -2,6 +2,7 @@ package org.sepehr.jblockchain.timestampserver;
 
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
+import org.sepehr.jblockchain.verification.MerkleTree;
 
 import java.security.PublicKey;
 import java.util.List;
@@ -19,4 +20,6 @@ public interface TimestampServer {
     List<Utxo> getTransactionInputs(PublicKey senderPublic);
 
     int getCurrentBlockIdx();
+
+    MerkleTree.TransactionProof getProof(Transaction transaction);
 }
