@@ -42,7 +42,7 @@ public class Block {
         );
         transaction.getOut1().setConfirmed(true);
         transaction.getOut0().setConfirmed(true);
-        byte[] hash = HashManager.hashTransaction(transaction, inputs);
+        byte[] hash = HashManager.getInstance().hashTransaction(transaction, inputs);
         transaction.setHash(hash);
         items.add(transaction);
         this.rootHash = "";
@@ -55,7 +55,7 @@ public class Block {
     }
 
     public byte[] getHash() {
-        return HashManager.hashBlock(this);
+        return HashManager.getInstance().hashBlock(this);
     }
 
     public void appendTransaction(Transaction transaction) {

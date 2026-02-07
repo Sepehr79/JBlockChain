@@ -20,7 +20,7 @@ public class SimpleTransactionClient implements TransactionClient {
             for (Utxo utxo: inputs) {
                 sum += utxo.getValue();
             }
-            byte[] hash = HashManager.hashTransaction(transaction, inputs);
+            byte[] hash = HashManager.getInstance().hashTransaction(transaction, inputs);
             transaction.setHash(hash);
             transaction.setOut0(new Utxo(receiverPublic, amount, hash, 0));
             transaction.setOut1(new Utxo(senderPublic, sum - amount, hash, 1));

@@ -10,11 +10,14 @@ import java.util.List;
 
 public class HashManager {
 
-    public static byte[] hash(String value) {
+    private static HashManager HASH_MANAGER;
+    private HashManager() { }
+
+    public byte[] hash(String value) {
         return Hashing.sha256().hashBytes(value.getBytes()).asBytes();
     }
 
-    public static byte[] hashTransaction(Transaction transaction, List<Utxo> inputs) {
+    public byte[] hashTransaction(Transaction transaction, List<Utxo> inputs) {
         Hasher hasher = Hashing.sha256().newHasher();
         hasher.putLong(transaction.getAmount());
         hasher.putBytes(transaction.getSender().getEncoded());
@@ -23,13 +26,19 @@ public class HashManager {
         return hasher.hash().asBytes();
     }
 
-    public static byte[] hashBlock(Block block) {
+    public byte[] hashBlock(Block block) {
         Hasher hasher = Hashing.sha256().newHasher();
         hasher.putBytes(block.getRootHash().getBytes());
         hasher.putLong(block.getNonce());
         hasher.putInt(block.getIdx());
         hasher.putBytes(block.getPrevHash());
         return hasher.hash().asBytes();
+    }
+
+    public static HashManager getInstance() {
+        if (HASH_MANAGER == null)
+            HASH_MANAGER = new HashManager();
+        return HASH_MANAGER;
     }
 
 }
