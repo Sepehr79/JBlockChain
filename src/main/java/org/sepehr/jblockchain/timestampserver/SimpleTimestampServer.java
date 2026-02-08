@@ -14,8 +14,10 @@ public class SimpleTimestampServer implements TimestampServer {
 
     private Block currentBlock;
 
+    // Prevent double spending in all blocks
     private final List<Block> blocks = new ArrayList<>();
 
+    // Prevent double spending in current block
     private final Set<Utxo> utxoSet = new HashSet<>();
 
     private final Set<Utxo> currentBlockUtxoSet = new HashSet<>();
