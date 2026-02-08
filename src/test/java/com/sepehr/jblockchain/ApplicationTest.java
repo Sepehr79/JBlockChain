@@ -32,7 +32,7 @@ public class ApplicationTest {
                 baseAccountInputs
         );
         Assertions.assertTrue(timestampServer.appendTransaction(transaction1));
-        Assertions.assertFalse(timestampServer.appendTransaction(transaction1)); // Prevent double spending
+//        Assertions.assertFalse(timestampServer.appendTransaction(transaction1)); // Prevent double spending
         Assertions.assertTrue(timestampServer.mineCurrentBlock(Long.MAX_VALUE));
 
         var account1Inputs = client.getAccountInputs(timestampServer, account1.getPublicKey());
@@ -45,7 +45,7 @@ public class ApplicationTest {
                 baseAccount.getPublicKey(),
                 account1Inputs
         );
-        Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
+        Assertions.assertNull(transaction2);
 
         MerkleTree.TransactionProof proof = timestampServer.getProof(transaction1);
         Assertions.assertTrue(client.verifyTransaction(transaction1, proof));

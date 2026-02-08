@@ -6,6 +6,9 @@ import java.util.List;
 public class TransactionInputFactory {
 
     public List<Utxo> createInput(PublicKey publicKey, int amount) {
-        return List.of(new Utxo(publicKey, amount, "".getBytes(), 0));
+        byte[] hash = new byte[32];
+        Utxo utxo = new Utxo(publicKey, amount, 0);
+        utxo.setTxid(hash);
+        return List.of(utxo);
     }
 }

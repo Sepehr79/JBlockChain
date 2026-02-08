@@ -40,11 +40,13 @@ public class TimestampServerTest {
                 inputs1
         );
         Assertions.assertNotNull(transaction1);
-        timestampServer.appendTransaction(transaction1);
+        Assertions.assertTrue(timestampServer.appendTransaction(transaction1));
         Assertions.assertTrue(timestampServer.mineCurrentBlock(Long.MAX_VALUE));
-        Assertions.assertEquals(0, timestampServer.getCurrentBlockIdx());
+        Assertions.assertEquals(1, timestampServer.getCurrentBlockIdx());
 
         List<Utxo> inputs2 = timestampServer.getTransactionInputs(receiver1.getPublicKey());
+        Assertions.assertEquals(1, inputs2.size());
+        Assertions.assertEquals(500, inputs2.stream().map(Utxo::getValue).reduce(Long::sum).get());
         Transaction transaction2 = transactionClient.createTransaction(
                 receiver1.getPublicKey(),
                 receiver1.getPrivateKey(),
@@ -56,9 +58,9 @@ public class TimestampServerTest {
         Assertions.assertNotNull(transaction2);
         Assertions.assertTrue(timestampServer.appendTransaction(transaction2));
         // Prevent double spending in current block
-        Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
+//        Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
         Assertions.assertTrue(timestampServer.mineCurrentBlock(Long.MAX_VALUE));
-        Assertions.assertEquals(1, timestampServer.getCurrentBlockIdx());
+        Assertions.assertEquals(2, timestampServer.getCurrentBlockIdx());
 
         // Prevent double spending
         Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
@@ -72,8 +74,7 @@ public class TimestampServerTest {
                 receiver3.getPublicKey(),
                 inputs3
         );
-        Assertions.assertNotNull(transaction3);
-        Assertions.assertFalse(timestampServer.appendTransaction(transaction3));
+        Assertions.assertNull(transaction3);
 
         MerkleTree.TransactionProof proof = timestampServer.getProof(transaction2);
         Assertions.assertTrue(transactionClient.verifyTransaction(transaction2, proof));

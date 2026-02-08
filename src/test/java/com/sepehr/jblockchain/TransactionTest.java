@@ -22,8 +22,11 @@ public class TransactionTest {
         Account sender = accountFactory.buildAccount();
         Account receiver = accountFactory.buildAccount();
         Assertions.assertNotEquals(sender.getPublicKey(), receiver.getPublicKey());
-        Utxo utxo1 = new Utxo(sender.getPublicKey(), 300, "".getBytes(), 0);
-        Utxo utxo2 = new Utxo(sender.getPublicKey(), 400, "".getBytes(), 0);
+        byte[] fakeTxId = new byte[32];
+        Utxo utxo1 = new Utxo(sender.getPublicKey(), 300, 0);
+        Utxo utxo2 = new Utxo(sender.getPublicKey(), 400, 0);
+        utxo1.setTxid(fakeTxId);
+        utxo2.setTxid(fakeTxId);
         utxo1.setConfirmed(true);
         utxo2.setConfirmed(true);
         List<Utxo> inputs = List.of(utxo1, utxo2);
@@ -44,8 +47,12 @@ public class TransactionTest {
         Account receiver2 = accountFactory.buildAccount();
         Account receiver3 = accountFactory.buildAccount();
 
-        Utxo utxo1 = new Utxo(sender.getPublicKey(), 500, "".getBytes(), 0);
-        Utxo utxo2 = new Utxo(sender.getPublicKey(), 600, "".getBytes(), 1);
+        byte[] fakeTxId = new byte[32];
+
+        Utxo utxo1 = new Utxo(sender.getPublicKey(), 500, 0);
+        Utxo utxo2 = new Utxo(sender.getPublicKey(), 600, 1);
+        utxo1.setTxid(fakeTxId);
+        utxo2.setTxid(fakeTxId);
         utxo1.setConfirmed(true);
         utxo2.setConfirmed(true);
         List<Utxo> inputs = List.of(utxo1, utxo2);
@@ -88,11 +95,11 @@ public class TransactionTest {
      */
     boolean verifyTransaction(Transaction transaction, List<Utxo> inputs) {
         try {
-            var signature = Signature.getInstance("SHA1withDSA", "SUN");
+            var signature = Signature.getInstance("SHA256withDSA");
             PublicKey receiver = transaction.getSender();
             long sum = 0;
             for (Utxo utxo: inputs) {
-                if (!receiver.equals(utxo.getReceiver()) || !utxo.isConfirmed() || utxo.isSpent())
+                if (!receiver.equals(utxo.getReceiver()) || !utxo.isConfirmed())
                     return false;
                 sum += utxo.getValue();
             }
@@ -103,7 +110,7 @@ public class TransactionTest {
             signature.initVerify(transaction.getSender());
             signature.update(transaction.getHash());
             return signature.verify(transaction.getTransactionSignature());
-        } catch (NoSuchAlgorithmException | NoSuchProviderException | SignatureException | InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
     }

@@ -16,22 +16,28 @@ public class SimpleTransactionClient implements TransactionClient {
                                          PublicKey receiverPublic,
                                          List<Utxo> inputs) {
         try {
-            var transaction = new Transaction(senderPublic, amount, receiverPublic);
-            long sum = 0;
-            for (Utxo utxo: inputs) {
-                sum += utxo.getValue();
-            }
-            byte[] hash = HashManager.getInstance().hashTransaction(transaction, inputs);
-            transaction.setHash(hash);
-            transaction.setOut0(new Utxo(receiverPublic, amount, hash, 0));
-            transaction.setOut1(new Utxo(senderPublic, sum - amount, hash, 1));
-            var signature = Signature.getInstance("SHA1withDSA", "SUN");
+            long sum = inputs.stream().mapToLong(Utxo::getValue).sum();
+
+            if (sum < (amount)) return null;
+
+            Utxo out0 = new Utxo(receiverPublic, amount, 0);
+            Utxo out1 = new Utxo(senderPublic, sum - amount, 1);
+
+            var transaction = new Transaction(senderPublic, inputs, out0, out1);
+
+            byte[] txHash = HashManager.getInstance().hashTransaction(transaction);
+            transaction.setHash(txHash);
+
+            out0.setTxid(txHash);
+            out1.setTxid(txHash);
+
+            var signature = Signature.getInstance("SHA256withDSA");
             signature.initSign(senderPrivate);
-            signature.update(transaction.getHash());
-            byte[] sign = signature.sign();
-            transaction.setTransactionSignature(sign);
+            signature.update(txHash);
+            transaction.setTransactionSignature(signature.sign());
+
             return transaction;
-        } catch (NoSuchAlgorithmException | SignatureException | NoSuchProviderException | InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
     }

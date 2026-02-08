@@ -7,10 +7,8 @@ import org.sepehr.jblockchain.transaction.Utxo;
 import org.sepehr.jblockchain.verification.MerkleTree;
 
 import java.security.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SimpleTimestampServer implements TimestampServer {
 
@@ -18,34 +16,49 @@ public class SimpleTimestampServer implements TimestampServer {
 
     private final List<Block> blocks = new ArrayList<>();
 
+    private final Set<Utxo> utxoSet = new HashSet<>();
+
 
     public SimpleTimestampServer(Account baseAccount,
                                  long maxSupply) {
         currentBlock = new Block(baseAccount, maxSupply);
-        this.mineCurrentBlock(Long.MAX_VALUE);
-        this.blocks.add(currentBlock);
-        currentBlock = new Block(currentBlock.getPrevHash(), 0);
+        if (!SimpleBlockMiner.getInstance().mine(this.currentBlock, Long.MAX_VALUE)) {
+            throw new RuntimeException("Genesis block mining failed");
+        }
+        utxoSet.addAll(currentBlock.getItems().get(0).getInputs());
+        utxoSet.add(currentBlock.getItems().get(0).getOut0());
+        utxoSet.add(currentBlock.getItems().get(0).getOut1());
+        this.acceptBlock(currentBlock);
     }
 
     @Override
     public boolean acceptBlock(Block block) {
-        if (SimpleBlockMiner.getInstance().verifyBlock(block) && verifyTransactions(block.getItems()) && !sameSenderInCurrentBlock(block)) {
-            int idx = block.getIdx();
-            for (Transaction transaction: block.getItems()) {
-                List<Utxo> inputs = getTransactionInputs(transaction.getSender());
-                for (Utxo utxo: inputs) {
-                    utxo.setSpent(true);
+        if (SimpleBlockMiner.getInstance().verifyBlock(block) &&
+                verifyTransactions(block.getItems())) {
+
+            for (Transaction transaction : block.getItems()) {
+                for (Utxo input : transaction.getInputs()) {
+                    if (!utxoSet.remove(input)) {
+                        return false;
+                    }
                 }
-                transaction.getOut0().setConfirmed(true);
-                transaction.getOut0().setBlockHeight(idx);
-                transaction.getOut1().setConfirmed(true);
-                transaction.getOut1().setBlockHeight(idx);
+
+                updateUtxo(transaction.getOut0());
+                updateUtxo(transaction.getOut1());
             }
+
             this.blocks.add(block);
-            currentBlock = new Block(block.getHash(), block.getIdx() + 1);
+            this.currentBlock = new Block(block.getHash(), block.getIdx() + 1);
             return true;
         }
         return false;
+    }
+
+    private void updateUtxo(Utxo utxo) {
+        if (utxo != null && utxo.getValue() > 0) {
+            utxo.setConfirmed(true);
+            utxoSet.add(utxo);
+        }
     }
 
     @Override
@@ -63,7 +76,7 @@ public class SimpleTimestampServer implements TimestampServer {
 
     @Override
     public boolean appendTransaction(Transaction transaction) {
-        if (verifyTransactions(List.of(transaction)) && !sameSenderInCurrentBlock(transaction)) {
+        if (verifyTransactions(List.of(transaction))) {
             this.currentBlock.appendTransaction(transaction);
             return true;
         }
@@ -80,15 +93,9 @@ public class SimpleTimestampServer implements TimestampServer {
 
     @Override
     public List<Utxo> getTransactionInputs(PublicKey senderPublic) {
-        List<Utxo> inputs = new ArrayList<>();
-        for (Block block: blocks)
-            for (Transaction t: block.getItems()) {
-                if (t.getOut0().getReceiver().equals(senderPublic) && !t.getOut0().isSpent() && t.getOut0().isConfirmed())
-                    inputs.add(t.getOut0());
-                if (t.getOut1().getReceiver().equals(senderPublic) && !t.getOut1().isSpent() && t.getOut1().isConfirmed())
-                    inputs.add(t.getOut1());
-            }
-        return inputs;
+        return utxoSet.stream()
+                .filter(u -> u.getReceiver().equals(senderPublic))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -120,24 +127,27 @@ public class SimpleTimestampServer implements TimestampServer {
 
     private boolean verifyTransaction(Transaction transaction) {
         try {
-            List<Utxo> inputs = getTransactionInputs(transaction.getSender());
-            var signature = Signature.getInstance("SHA1withDSA", "SUN");
-            PublicKey receiver = transaction.getSender();
-            long sum = 0;
-            for (Utxo utxo: inputs) {
-                if (!receiver.equals(utxo.getReceiver()) || !utxo.isConfirmed() || utxo.isSpent())
+            List<Utxo> inputs = transaction.getInputs();
+            long inputSum = 0;
+            for (Utxo utxo : inputs) {
+                if (!utxoSet.contains(utxo)) return false;
+
+                if (!Arrays.equals(utxo.getReceiver().getEncoded(), transaction.getSender().getEncoded())) {
                     return false;
-                sum += utxo.getValue();
+                }
+
+                inputSum += utxo.getValue();
             }
 
-            if (transaction.getAmount() > sum)
-                return false;
+            if (transaction.getAmount() > inputSum) return false;
 
+            var signature = Signature.getInstance("SHA256withDSA");
             signature.initVerify(transaction.getSender());
             signature.update(transaction.getHash());
             return signature.verify(transaction.getTransactionSignature());
-        } catch (NoSuchAlgorithmException | NoSuchProviderException | SignatureException | InvalidKeyException e) {
-            throw new RuntimeException(e);
+
+        } catch (Exception e) {
+            return false;
         }
     }
 

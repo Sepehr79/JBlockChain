@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.security.PublicKey;
+import java.util.List;
 
 
 @Getter
@@ -12,9 +13,7 @@ public class Transaction {
 
     private final PublicKey sender;
 
-    private final PublicKey receiver;
-
-    private final long amount;
+    List<Utxo> inputs;
 
     @Setter
     private Utxo out0;
@@ -23,15 +22,19 @@ public class Transaction {
     private Utxo out1;
 
     @Setter
+    private long amount;
+
+    @Setter
     private byte[] transactionSignature;
 
     @Setter
     private byte[] hash;
 
-    public Transaction(PublicKey senderPublic, long amount, PublicKey receiverPublic) {
+    public Transaction(PublicKey senderPublic, List<Utxo> inputs, Utxo out0, Utxo out1) {
         this.sender = senderPublic;
-        this.amount = amount;
-        this.receiver = receiverPublic;
+        this.inputs = inputs;
+        this.out0 = out0;
+        this.out1 = out1;
     }
 
 }

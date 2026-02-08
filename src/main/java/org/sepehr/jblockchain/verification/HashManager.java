@@ -21,12 +21,26 @@ public class HashManager {
         return Hashing.sha256().hashBytes(value).asBytes();
     }
 
-    public byte[] hashTransaction(Transaction transaction, List<Utxo> inputs) {
+    public byte[] hashTransaction(Transaction transaction) {
         Hasher hasher = Hashing.sha256().newHasher();
-        hasher.putLong(transaction.getAmount());
+
         hasher.putBytes(transaction.getSender().getEncoded());
-        hasher.putBytes(transaction.getReceiver().getEncoded());
-        inputs.forEach(utxo -> hasher.putBytes(utxo.getTxid()));
+
+        for (Utxo input : transaction.getInputs()) {
+            hasher.putBytes(input.getTxid());
+            hasher.putInt(input.getVout());
+        }
+
+        if (transaction.getOut0() != null) {
+            hasher.putLong(transaction.getOut0().getValue());
+            hasher.putBytes(transaction.getOut0().getReceiver().getEncoded());
+        }
+
+        if (transaction.getOut1() != null) {
+            hasher.putLong(transaction.getOut1().getValue());
+            hasher.putBytes(transaction.getOut1().getReceiver().getEncoded());
+        }
+
         return hasher.hash().asBytes();
     }
 
@@ -36,6 +50,7 @@ public class HashManager {
         hasher.putLong(block.getNonce());
         hasher.putInt(block.getIdx());
         hasher.putBytes(block.getPrevHash());
+        hasher.putLong(block.getTimestamp());
         return hasher.hash().asBytes();
     }
 

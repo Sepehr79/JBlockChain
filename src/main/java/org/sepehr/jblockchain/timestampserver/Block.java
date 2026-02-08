@@ -17,19 +17,30 @@ public class Block {
 
     @Setter
     private int idx;
+
+    @Setter
+    private long timestamp;
     private final List<Transaction> items = new ArrayList<>();
     private final byte[] prevHash;
     private long nonce;
+
 
     private byte[] transactionRootHash;
 
     private MerkleTree merkleTree;
 
     public Block(Account baseAccount, long maxSupply) {
-        List<Utxo> inputs = List.of(new Utxo(baseAccount.getPublicKey(), maxSupply, "".getBytes(), 0));
+        byte[] genesisPrevTxId = new byte[32];
+
+        Utxo genesisInput = new Utxo(baseAccount.getPublicKey(), maxSupply, 0);
+        genesisInput.setTxid(genesisPrevTxId);
+        List<Utxo> inputs = List.of(genesisInput);
+
         inputs.forEach(utxo -> utxo.setConfirmed(true));
-        this.prevHash = "".getBytes();
+        this.prevHash = new byte[32];
+
         SimpleTransactionClient simpleTransactionManager = new SimpleTransactionClient();
+
         Transaction transaction = simpleTransactionManager.createTransaction(
                 baseAccount.getPublicKey(),
                 baseAccount.getPrivateKey(),
@@ -39,11 +50,12 @@ public class Block {
         );
         transaction.getOut1().setConfirmed(true);
         transaction.getOut0().setConfirmed(true);
-        byte[] hash = HashManager.getInstance().hashTransaction(transaction, inputs);
+        byte[] hash = HashManager.getInstance().hashTransaction(transaction);
         transaction.setHash(hash);
         items.add(transaction);
         this.merkleTree = new MerkleTree(items);
         this.transactionRootHash = merkleTree.getMerkleRoot();
+        this.timestamp = System.currentTimeMillis();
     }
 
     public Block(byte[] prevHash, int idx) {
