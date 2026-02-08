@@ -45,6 +45,7 @@ public class SimpleTimestampServer implements TimestampServer {
 
                 updateUtxo(transaction.getOut0());
                 updateUtxo(transaction.getOut1());
+
             }
 
             this.blocks.add(block);
@@ -58,6 +59,7 @@ public class SimpleTimestampServer implements TimestampServer {
     private void updateUtxo(Utxo utxo) {
         if (utxo != null && utxo.getValue() > 0) {
             utxo.setConfirmed(true);
+            utxo.setBlockHeight(currentBlock.getIdx());
             utxoSet.add(utxo);
         }
     }
