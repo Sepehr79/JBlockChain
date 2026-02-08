@@ -18,6 +18,8 @@ public class SimpleTimestampServer implements TimestampServer {
 
     private final Set<Utxo> utxoSet = new HashSet<>();
 
+    private final Set<Utxo> currentBlockUtxoSet = new HashSet<>();
+
 
     public SimpleTimestampServer(Account baseAccount,
                                  long maxSupply) {
@@ -49,6 +51,7 @@ public class SimpleTimestampServer implements TimestampServer {
 
             this.blocks.add(block);
             this.currentBlock = new Block(block.getHash(), block.getIdx() + 1);
+            this.currentBlockUtxoSet.clear();
             return true;
         }
         return false;
@@ -77,6 +80,12 @@ public class SimpleTimestampServer implements TimestampServer {
     @Override
     public boolean appendTransaction(Transaction transaction) {
         if (verifyTransactions(List.of(transaction))) {
+            for (Utxo input: transaction.getInputs()) {
+                if (currentBlockUtxoSet.contains(input))
+                    return false;
+                else
+                    currentBlockUtxoSet.add(input);
+            }
             this.currentBlock.appendTransaction(transaction);
             return true;
         }

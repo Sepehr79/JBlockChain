@@ -32,7 +32,7 @@ public class ApplicationTest {
                 baseAccountInputs
         );
         Assertions.assertTrue(timestampServer.appendTransaction(transaction1));
-//        Assertions.assertFalse(timestampServer.appendTransaction(transaction1)); // Prevent double spending
+        Assertions.assertFalse(timestampServer.appendTransaction(transaction1)); // Prevent double spending
         Assertions.assertTrue(timestampServer.mineCurrentBlock(Long.MAX_VALUE));
 
         var account1Inputs = client.getAccountInputs(timestampServer, account1.getPublicKey());

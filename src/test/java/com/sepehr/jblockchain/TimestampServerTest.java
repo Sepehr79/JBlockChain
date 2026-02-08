@@ -58,7 +58,7 @@ public class TimestampServerTest {
         Assertions.assertNotNull(transaction2);
         Assertions.assertTrue(timestampServer.appendTransaction(transaction2));
         // Prevent double spending in current block
-//        Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
+        Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
         Assertions.assertTrue(timestampServer.mineCurrentBlock(Long.MAX_VALUE));
         Assertions.assertEquals(2, timestampServer.getCurrentBlockIdx());
 
