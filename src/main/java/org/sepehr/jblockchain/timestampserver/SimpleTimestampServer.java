@@ -14,12 +14,11 @@ public class SimpleTimestampServer implements TimestampServer {
 
     private Block currentBlock;
 
-    // Prevent double spending in all blocks
     private final List<Block> blocks = new ArrayList<>();
 
-    // Prevent double spending in current block
+    // Prevent double spending in all blocks
     private final Set<Utxo> utxoSet = new HashSet<>();
-
+    // Prevent double spending in current block
     private final Set<Utxo> currentBlockUtxoSet = new HashSet<>();
 
 
@@ -29,9 +28,6 @@ public class SimpleTimestampServer implements TimestampServer {
         if (!SimpleBlockMiner.getInstance().mine(this.currentBlock, Long.MAX_VALUE)) {
             throw new RuntimeException("Genesis block mining failed");
         }
-        this.utxoSet.addAll(currentBlock.getItems().get(0).getInputs());
-        this.utxoSet.add(currentBlock.getItems().get(0).getOut1());
-        this.utxoSet.add(currentBlock.getItems().get(0).getOut1());
         this.acceptBlock(currentBlock);
     }
 
@@ -42,7 +38,7 @@ public class SimpleTimestampServer implements TimestampServer {
 
             for (Transaction transaction : block.getItems()) {
                 for (Utxo input : transaction.getInputs()) {
-                    if (!utxoSet.remove(input)) {
+                    if (!utxoSet.remove(input) && blocks.size() != 0) {
                         return false;
                     }
                 }
@@ -96,7 +92,7 @@ public class SimpleTimestampServer implements TimestampServer {
 
     private boolean verifyTransactions(List<Transaction> transactions) {
         for (Transaction transaction: transactions) {
-            if (!verifyTransaction(transaction))
+            if (!verifyTransaction(transaction) && blocks.size() != 0)
                 return false;
         }
         return true;

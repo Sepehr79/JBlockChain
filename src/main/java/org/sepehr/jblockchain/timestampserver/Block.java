@@ -3,6 +3,8 @@ package org.sepehr.jblockchain.timestampserver;
 import lombok.Getter;
 import lombok.Setter;
 import org.sepehr.jblockchain.account.Account;
+import org.sepehr.jblockchain.account.SimpleAccountFactory;
+import org.sepehr.jblockchain.account.SimpleKeyFactory;
 import org.sepehr.jblockchain.transaction.SimpleTransactionClient;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
@@ -35,7 +37,6 @@ public class Block {
         Utxo genesisInput = new Utxo(baseAccount.getPublicKey(), maxSupply, 0);
         genesisInput.setTxid(genesisPrevTxId);
         List<Utxo> inputs = List.of(genesisInput);
-
         inputs.forEach(utxo -> utxo.setConfirmed(true));
         this.prevHash = new byte[32];
 
