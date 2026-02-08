@@ -27,9 +27,9 @@ public class SimpleTimestampServer implements TimestampServer {
         if (!SimpleBlockMiner.getInstance().mine(this.currentBlock, Long.MAX_VALUE)) {
             throw new RuntimeException("Genesis block mining failed");
         }
-        utxoSet.addAll(currentBlock.getItems().get(0).getInputs());
-        utxoSet.add(currentBlock.getItems().get(0).getOut0());
-        utxoSet.add(currentBlock.getItems().get(0).getOut1());
+        this.utxoSet.addAll(currentBlock.getItems().get(0).getInputs());
+        this.utxoSet.add(currentBlock.getItems().get(0).getOut1());
+        this.utxoSet.add(currentBlock.getItems().get(0).getOut1());
         this.acceptBlock(currentBlock);
     }
 
@@ -119,19 +119,6 @@ public class SimpleTimestampServer implements TimestampServer {
                 return new MerkleTree.TransactionProof(block.getMerkleTree().getProof(transaction), block.getTransactionRootHash());
         }
         return null;
-    }
-
-    private boolean sameSenderInCurrentBlock(Block block) {
-        Set<PublicKey> publicKeys = new HashSet<>();
-        block.getItems().forEach(transaction -> publicKeys.add(transaction.getSender()));
-        return publicKeys.size() < block.getItems().size();
-    }
-
-    private boolean sameSenderInCurrentBlock(Transaction newTransaction) {
-        Set<PublicKey> publicKeys = new HashSet<>();
-        currentBlock.getItems().forEach(transaction -> publicKeys.add(transaction.getSender()));
-        publicKeys.add(newTransaction.getSender());
-        return publicKeys.size() < currentBlock.getItems().size() + 1;
     }
 
     private boolean verifyTransaction(Transaction transaction) {

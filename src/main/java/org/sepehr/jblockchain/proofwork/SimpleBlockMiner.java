@@ -19,10 +19,11 @@ public class SimpleBlockMiner implements BlockMiner {
     @Override
     public boolean mine(Block block, long maxTime) {
         long startTime = System.currentTimeMillis();
-        boolean timeout = false;
-        while (!verifyBlock(block) && !timeout) {
+        while (!verifyBlock(block)) {
+            if ((System.currentTimeMillis() - startTime) > maxTime) {
+                return false;
+            }
             block.increaseNonce();
-            timeout = (System.currentTimeMillis() - startTime) > maxTime;
         }
         return true;
     }
