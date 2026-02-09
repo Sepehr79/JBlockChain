@@ -103,10 +103,9 @@ System.out.println("Success: Network consensus reached!");
 ## 🛡️ Security Features
 
 * **Double Spending Prevention**: The TimestampServer explicitly rejects transactions that attempt to reuse inputs.
-
 * **Cryptographic Integrity**: All transactions are signed via private keys and verified using DSA via Java Security.
-
 * **Immutable Ledger**: Once a block is mined via the proofofwork package, transactions are cryptographically linked.
+* **Java Serialization**: Uses secure object streams for inter-node communication (Note: Requires classes to implement `Serializable`
 
 ## 🧪 Testing
 Run the test suite using the Maven Lifecycle:
