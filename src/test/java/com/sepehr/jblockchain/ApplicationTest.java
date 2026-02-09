@@ -9,6 +9,8 @@ import org.sepehr.jblockchain.account.SimpleKeyFactory;
 import org.sepehr.jblockchain.timestampserver.SimpleTimestampServer;
 import org.sepehr.jblockchain.transaction.SimpleTransactionClient;
 import org.sepehr.jblockchain.transaction.Transaction;
+import org.sepehr.jblockchain.transaction.Utxo;
+import org.sepehr.jblockchain.verification.HashManager;
 import org.sepehr.jblockchain.verification.MerkleTree;
 
 public class ApplicationTest {
@@ -38,14 +40,19 @@ public class ApplicationTest {
         var account1Inputs = client.getAccountInputs(timestampServer, account1.getPublicKey());
         Assertions.assertEquals(1, account1Inputs.size());
         Assertions.assertEquals(100, account1Inputs.get(0).getValue());
+
+        Utxo fakeInput = new Utxo(baseAccount.getPublicKey(), 100, 0);
+        fakeInput.setTxid(account1Inputs.get(0).getTxid());
+        account1Inputs.add(fakeInput);
         Transaction transaction2 = client.createTransaction(
                 account1.getPublicKey(),
                 account1.getPrivateKey(),
-                200,
+                150,
                 baseAccount.getPublicKey(),
                 account1Inputs
         );
-        Assertions.assertNull(transaction2);
+        Assertions.assertFalse(timestampServer.appendTransaction(transaction2));
+        Assertions.assertTrue(timestampServer.mineCurrentBlock(Long.MAX_VALUE));
 
         MerkleTree.TransactionProof proof = timestampServer.getProof(transaction1);
         Assertions.assertTrue(client.verifyTransaction(transaction1, proof));

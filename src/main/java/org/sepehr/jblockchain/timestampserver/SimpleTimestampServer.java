@@ -131,8 +131,8 @@ public class SimpleTimestampServer implements TimestampServer {
 
     private boolean verifyTransaction(Transaction transaction) {
         try {
+            if (transaction.getOut1().getValue() < 0 ) return false;
             List<Utxo> inputs = transaction.getInputs();
-            long inputSum = 0;
             for (Utxo utxo : inputs) {
                 if (!utxoSet.contains(utxo)) return false;
 
@@ -140,10 +140,7 @@ public class SimpleTimestampServer implements TimestampServer {
                     return false;
                 }
 
-                inputSum += utxo.getValue();
             }
-
-            if (transaction.getAmount() > inputSum) return false;
 
             var signature = Signature.getInstance("SHA256withDSA");
             signature.initVerify(transaction.getSender());

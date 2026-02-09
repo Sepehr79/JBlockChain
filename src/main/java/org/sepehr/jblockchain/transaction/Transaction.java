@@ -25,9 +25,6 @@ public class Transaction implements Serializable {
     private Utxo out1;
 
     @Setter
-    private long amount;
-
-    @Setter
     private byte[] transactionSignature;
 
     @Setter

@@ -104,8 +104,8 @@ public class TransactionTest {
                 sum += utxo.getValue();
             }
 
-            if (transaction.getAmount() > sum)
-                return false;
+//            if (transaction.getAmount() > sum)
+//                return false;
 
             signature.initVerify(transaction.getSender());
             signature.update(transaction.getHash());

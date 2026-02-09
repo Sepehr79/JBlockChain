@@ -18,8 +18,6 @@ public class SimpleTransactionClient implements TransactionClient {
         try {
             long sum = inputs.stream().mapToLong(Utxo::getValue).sum();
 
-            if (sum < (amount)) return null;
-
             Utxo out0 = new Utxo(receiverPublic, amount, 0);
             Utxo out1 = new Utxo(senderPublic, sum - amount, 1);
 
