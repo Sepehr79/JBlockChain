@@ -1,6 +1,8 @@
 # Jitcoin (Java Bitcoin Implementation)
 
-<img src="./jjitcoin.png" width="200">
+<p align="center">
+<img src="./jjitcoin.png" width="300" height="300">
+</p>
 
 A lightweight Java implementation of a decentralized ledger based on the [Bitcoin Whitepaper](https://bitcoin.org/bitcoin.pdf). This project demonstrates core blockchain principles including Proof-of-Work (PoW), Merkle Tree verification, and UTXO-based transactions.
 
