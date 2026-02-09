@@ -18,7 +18,6 @@ public class DistributedServerTest {
         SimpleAccountFactory factory = new SimpleAccountFactory(new SimpleKeyFactory());
         Account accountA = factory.buildAccount();
         Account accountB = factory.buildAccount();
-        Account accountC = factory.buildAccount();
 
         DistributedTimestampServer nodeA = new DistributedTimestampServer(accountA, 1000, 9091, List.of(9092));
         DistributedTimestampServer nodeB = new DistributedTimestampServer(accountA, 1000, 9092, List.of(9091, 9093));
@@ -28,7 +27,7 @@ public class DistributedServerTest {
 
         Transaction tx = new SimpleTransactionClient().createTransaction(
                 accountA.getPublicKey(), accountA.getPrivateKey(), 10,
-                accountC.getPublicKey(), nodeA.getTransactionInputs(accountA.getPublicKey())
+                accountB.getPublicKey(), nodeA.getTransactionInputs(accountA.getPublicKey())
         );
 
         System.out.println("Step 1: Appending transaction to Node A...");
