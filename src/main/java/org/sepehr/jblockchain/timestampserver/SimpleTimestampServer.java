@@ -121,6 +121,14 @@ public class SimpleTimestampServer implements TimestampServer {
         return null;
     }
 
+    public List<Block> getBlocks() {
+        return this.blocks;
+    }
+
+    public Block getCurrentBlock() {
+        return this.currentBlock;
+    }
+
     private boolean verifyTransaction(Transaction transaction) {
         try {
             List<Utxo> inputs = transaction.getInputs();

@@ -1,15 +1,18 @@
 package org.sepehr.jblockchain.transaction;
 
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.security.PublicKey;
 import java.util.List;
 
 
 @Getter
-public class Transaction {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Transaction implements Serializable {
 
     private final PublicKey sender;
 
@@ -28,6 +31,7 @@ public class Transaction {
     private byte[] transactionSignature;
 
     @Setter
+    @EqualsAndHashCode.Include
     private byte[] hash;
 
     public Transaction(PublicKey senderPublic, List<Utxo> inputs, Utxo out0, Utxo out1) {

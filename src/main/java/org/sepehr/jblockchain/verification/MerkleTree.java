@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.sepehr.jblockchain.transaction.Transaction;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
 /**
  * Merkle Tree implementation for Bitcoin-style transaction verification
  */
-public class MerkleTree {
+public class MerkleTree implements Serializable {
 
     private Node root;
     private List<Transaction> transactions;
@@ -37,7 +38,7 @@ public class MerkleTree {
     /**
      * Node class representing each node in the Merkle Tree
      */
-    static class Node {
+    static class Node implements Serializable {
         byte[] hash;
         Node left;
         Node right;

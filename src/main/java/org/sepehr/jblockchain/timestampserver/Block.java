@@ -11,11 +11,12 @@ import org.sepehr.jblockchain.transaction.Utxo;
 import org.sepehr.jblockchain.verification.HashManager;
 import org.sepehr.jblockchain.verification.MerkleTree;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class Block {
+public class Block implements Serializable {
 
     @Setter
     private int idx;
