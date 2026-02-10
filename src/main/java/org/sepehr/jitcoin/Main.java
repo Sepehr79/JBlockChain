@@ -1,9 +1,9 @@
-package org.sepehr.jblockchain;
+package org.sepehr.jitcoin;
 
-import org.sepehr.jblockchain.account.Account;
-import org.sepehr.jblockchain.account.DataEncoder;
-import org.sepehr.jblockchain.network.DistributedTimestampServer;
-import org.sepehr.jblockchain.proofwork.SimpleBlockMiner;
+import org.sepehr.jitcoin.account.Account;
+import org.sepehr.jitcoin.account.DataEncoder;
+import org.sepehr.jitcoin.network.DistributedTimestampServer;
+import org.sepehr.jitcoin.proofwork.SimpleBlockMiner;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,7 +19,7 @@ public class Main {
 
         if (args.length != 3) {
             System.out.println(
-                    "Usage: java NodeMain <difficulty> <port> <max supply>"
+                    "Usage: java -jar <filename> <difficulty> <port> <max supply>"
             );
             System.exit(1);
         }

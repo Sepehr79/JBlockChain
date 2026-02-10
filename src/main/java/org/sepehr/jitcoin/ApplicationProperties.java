@@ -1,4 +1,4 @@
-package org.sepehr.jblockchain;
+package org.sepehr.jitcoin;
 
 import java.io.IOException;
 import java.util.Properties;

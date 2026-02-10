@@ -2,9 +2,9 @@ package com.sepehr.jblockchain;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.sepehr.jblockchain.account.DataEncoder;
-import org.sepehr.jblockchain.account.KeyFactory;
-import org.sepehr.jblockchain.account.SimpleKeyFactory;
+import org.sepehr.jitcoin.account.DataEncoder;
+import org.sepehr.jitcoin.account.KeyFactory;
+import org.sepehr.jitcoin.account.SimpleKeyFactory;
 
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;

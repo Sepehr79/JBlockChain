@@ -1,4 +1,4 @@
-package org.sepehr.jblockchain.account;
+package org.sepehr.jitcoin.account;
 
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;

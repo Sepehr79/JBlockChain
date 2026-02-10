@@ -1,4 +1,4 @@
-package org.sepehr.jblockchain.transaction;
+package org.sepehr.jitcoin.transaction;
 
 import java.security.PublicKey;
 import java.util.List;

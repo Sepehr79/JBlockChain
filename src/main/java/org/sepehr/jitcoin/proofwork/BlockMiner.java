@@ -1,6 +1,6 @@
-package org.sepehr.jblockchain.proofwork;
+package org.sepehr.jitcoin.proofwork;
 
-import org.sepehr.jblockchain.timestampserver.Block;
+import org.sepehr.jitcoin.timestampserver.Block;
 
 public interface BlockMiner {
 

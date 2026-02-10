@@ -1,6 +1,5 @@
-package org.sepehr.jblockchain.transaction;
+package org.sepehr.jitcoin.transaction;
 
-import jdk.jfr.Enabled;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

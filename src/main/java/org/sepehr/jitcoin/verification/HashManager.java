@@ -1,12 +1,10 @@
-package org.sepehr.jblockchain.verification;
+package org.sepehr.jitcoin.verification;
 
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
-import org.sepehr.jblockchain.timestampserver.Block;
-import org.sepehr.jblockchain.transaction.Transaction;
-import org.sepehr.jblockchain.transaction.Utxo;
-
-import java.util.List;
+import org.sepehr.jitcoin.timestampserver.Block;
+import org.sepehr.jitcoin.transaction.Transaction;
+import org.sepehr.jitcoin.transaction.Utxo;
 
 public class HashManager {
 

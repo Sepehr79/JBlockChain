@@ -1,8 +1,8 @@
-package org.sepehr.jblockchain;
+package org.sepehr.jitcoin;
 
-import org.sepehr.jblockchain.account.DataEncoder;
-import org.sepehr.jblockchain.account.KeyFactory;
-import org.sepehr.jblockchain.account.SimpleKeyFactory;
+import org.sepehr.jitcoin.account.DataEncoder;
+import org.sepehr.jitcoin.account.KeyFactory;
+import org.sepehr.jitcoin.account.SimpleKeyFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;

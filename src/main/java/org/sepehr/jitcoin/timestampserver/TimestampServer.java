@@ -1,8 +1,8 @@
-package org.sepehr.jblockchain.timestampserver;
+package org.sepehr.jitcoin.timestampserver;
 
-import org.sepehr.jblockchain.transaction.Transaction;
-import org.sepehr.jblockchain.transaction.Utxo;
-import org.sepehr.jblockchain.verification.MerkleTree;
+import org.sepehr.jitcoin.transaction.Transaction;
+import org.sepehr.jitcoin.transaction.Utxo;
+import org.sepehr.jitcoin.verification.MerkleTree;
 
 import java.security.PublicKey;
 import java.util.List;

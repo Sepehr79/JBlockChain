@@ -2,12 +2,12 @@ package com.sepehr.jblockchain;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.sepehr.jblockchain.account.Account;
-import org.sepehr.jblockchain.account.SimpleAccountFactory;
-import org.sepehr.jblockchain.account.SimpleKeyFactory;
-import org.sepehr.jblockchain.transaction.SimpleTransactionClient;
-import org.sepehr.jblockchain.transaction.Transaction;
-import org.sepehr.jblockchain.transaction.Utxo;
+import org.sepehr.jitcoin.account.Account;
+import org.sepehr.jitcoin.account.SimpleAccountFactory;
+import org.sepehr.jitcoin.account.SimpleKeyFactory;
+import org.sepehr.jitcoin.transaction.SimpleTransactionClient;
+import org.sepehr.jitcoin.transaction.Transaction;
+import org.sepehr.jitcoin.transaction.Utxo;
 
 import java.security.*;
 import java.util.List;

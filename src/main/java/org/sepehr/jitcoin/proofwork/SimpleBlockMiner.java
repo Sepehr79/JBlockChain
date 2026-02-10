@@ -1,8 +1,8 @@
-package org.sepehr.jblockchain.proofwork;
+package org.sepehr.jitcoin.proofwork;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.sepehr.jblockchain.timestampserver.Block;
+import org.sepehr.jitcoin.timestampserver.Block;
 
 @Getter
 @Setter

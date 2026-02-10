@@ -1,11 +1,11 @@
-package org.sepehr.jblockchain.timestampserver;
+package org.sepehr.jitcoin.timestampserver;
 
 import lombok.Getter;
-import org.sepehr.jblockchain.account.Account;
-import org.sepehr.jblockchain.proofwork.BlockMiner;
-import org.sepehr.jblockchain.transaction.Transaction;
-import org.sepehr.jblockchain.transaction.Utxo;
-import org.sepehr.jblockchain.verification.MerkleTree;
+import org.sepehr.jitcoin.account.Account;
+import org.sepehr.jitcoin.proofwork.BlockMiner;
+import org.sepehr.jitcoin.transaction.Transaction;
+import org.sepehr.jitcoin.transaction.Utxo;
+import org.sepehr.jitcoin.verification.MerkleTree;
 
 import java.security.PublicKey;
 import java.security.Signature;

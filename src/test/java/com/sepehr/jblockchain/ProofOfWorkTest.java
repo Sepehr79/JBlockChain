@@ -2,8 +2,8 @@ package com.sepehr.jblockchain;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.sepehr.jblockchain.proofwork.SimpleBlockMiner;
-import org.sepehr.jblockchain.timestampserver.Block;
+import org.sepehr.jitcoin.proofwork.SimpleBlockMiner;
+import org.sepehr.jitcoin.timestampserver.Block;
 
 public class ProofOfWorkTest {
 

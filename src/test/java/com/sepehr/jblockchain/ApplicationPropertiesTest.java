@@ -1,7 +1,7 @@
 package com.sepehr.jblockchain;
 
 import org.junit.jupiter.api.Test;
-import org.sepehr.jblockchain.ApplicationProperties;
+import org.sepehr.jitcoin.ApplicationProperties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -1,7 +1,7 @@
-package org.sepehr.jblockchain.network;
+package org.sepehr.jitcoin.network;
 
-import org.sepehr.jblockchain.timestampserver.Block;
-import org.sepehr.jblockchain.transaction.Transaction;
+import org.sepehr.jitcoin.timestampserver.Block;
+import org.sepehr.jitcoin.transaction.Transaction;
 
 public interface ConnectionGate {
 

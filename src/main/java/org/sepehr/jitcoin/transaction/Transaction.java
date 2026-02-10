@@ -1,4 +1,4 @@
-package org.sepehr.jblockchain.transaction;
+package org.sepehr.jitcoin.transaction;
 
 
 import lombok.EqualsAndHashCode;

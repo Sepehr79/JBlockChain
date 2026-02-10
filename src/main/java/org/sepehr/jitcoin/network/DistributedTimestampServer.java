@@ -1,11 +1,11 @@
-package org.sepehr.jblockchain.network;
+package org.sepehr.jitcoin.network;
 
 import lombok.Getter;
-import org.sepehr.jblockchain.account.Account;
-import org.sepehr.jblockchain.proofwork.BlockMiner;
-import org.sepehr.jblockchain.timestampserver.Block;
-import org.sepehr.jblockchain.timestampserver.SimpleTimestampServer;
-import org.sepehr.jblockchain.transaction.Transaction;
+import org.sepehr.jitcoin.account.Account;
+import org.sepehr.jitcoin.proofwork.BlockMiner;
+import org.sepehr.jitcoin.timestampserver.Block;
+import org.sepehr.jitcoin.timestampserver.SimpleTimestampServer;
+import org.sepehr.jitcoin.transaction.Transaction;
 
 import java.io.*;
 import java.net.ServerSocket;

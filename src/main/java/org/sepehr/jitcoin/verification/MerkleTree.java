@@ -1,9 +1,9 @@
-package org.sepehr.jblockchain.verification;
+package org.sepehr.jitcoin.verification;
 
 import com.google.common.primitives.Bytes;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.sepehr.jblockchain.transaction.Transaction;
+import org.sepehr.jitcoin.transaction.Transaction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
