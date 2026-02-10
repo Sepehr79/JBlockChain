@@ -21,9 +21,12 @@ public class DistributedServerTest {
         Account accountA = factory.buildAccount();
         Account accountB = factory.buildAccount();
 
-        DistributedTimestampServer nodeA = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2), 9091, List.of("127.0.0.1:9092"));
-        DistributedTimestampServer nodeB = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2), 9092, List.of("127.0.0.1:9091", "127.0.0.1:9093"));
-        DistributedTimestampServer nodeC = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2),  9093, List.of("127.0.0.1:9092"));
+        DistributedTimestampServer nodeA = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2), 9091);
+        nodeA.addPeer("127.0.0.1:9092");
+        DistributedTimestampServer nodeB = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2), 9092);
+        nodeB.addPeers("localhost:9091", "127.0.0.1:9093");
+        DistributedTimestampServer nodeC = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2),  9093);
+        nodeC.addPeer("127.0.0.1:9092");
 
         Thread.sleep(500);
 

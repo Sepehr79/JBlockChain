@@ -13,4 +13,6 @@ public interface ConnectionGate {
 
     void broadcastBlock(Block block);
 
+    void addPeer(String peer);
+
 }

@@ -19,7 +19,7 @@ public class DistributedTimestampServer
         implements ConnectionGate, Runnable {
 
     private final int port;
-    private List<String> peers = new ArrayList<>();
+    private Set<String> peers = new HashSet<>();
 
     private final Set<String> seenMessages =
             Collections.synchronizedSet(new HashSet<>());
@@ -30,19 +30,6 @@ public class DistributedTimestampServer
 
     private final ExecutorService networkExecutor =
             Executors.newCachedThreadPool();
-
-    public DistributedTimestampServer(
-            Account baseAccount,
-            long maxSupply,
-            BlockMiner blockMiner,
-            int port,
-            List<String> peers) {
-
-        super(baseAccount, maxSupply, blockMiner);
-        this.port = port;
-        this.peers = peers;
-        startNetworkListener();
-    }
 
     public DistributedTimestampServer(
             Account baseAccount,
@@ -123,6 +110,15 @@ public class DistributedTimestampServer
     @Override
     public void broadcastBlock(Block block) {
         sendToPeers(block);
+    }
+
+    @Override
+    public void addPeer(String peer) {
+        this.peers.add(peer);
+    }
+
+    public void addPeers(String ...peers) {
+        this.peers.addAll(Arrays.asList(peers));
     }
 
     private void sendToPeers(Object data) {
