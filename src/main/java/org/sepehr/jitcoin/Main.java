@@ -19,7 +19,7 @@ public class Main {
 
         if (args.length != 3) {
             System.out.println(
-                    "Usage: java -jar <filename> <difficulty> <port> <max supply>"
+                    "Usage: java -jar Node.jar <difficulty> <port> <max supply>"
             );
             System.exit(1);
         }
