@@ -9,10 +9,14 @@ public class SimpleKeyFactory implements KeyFactory {
 
     @Override
     public KeyPair generateKeyPair() {
+        return generateKeyPair(RANDOM.nextInt());
+    }
+
+    public KeyPair generateKeyPair(int random) {
         try {
             final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
             final SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG", "SUN");
-            secureRandom.setSeed(RANDOM.nextInt());
+            secureRandom.setSeed(random);
             keyGen.initialize(1024, secureRandom);
             return keyGen.generateKeyPair();
         } catch (NoSuchAlgorithmException | NoSuchProviderException noSuchAlgorithmException) {

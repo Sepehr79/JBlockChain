@@ -1,12 +1,14 @@
 package org.sepehr.jblockchain.timestampserver;
 
+import lombok.Getter;
 import org.sepehr.jblockchain.account.Account;
-import org.sepehr.jblockchain.proofwork.SimpleBlockMiner;
+import org.sepehr.jblockchain.proofwork.BlockMiner;
 import org.sepehr.jblockchain.transaction.Transaction;
 import org.sepehr.jblockchain.transaction.Utxo;
 import org.sepehr.jblockchain.verification.MerkleTree;
 
-import java.security.*;
+import java.security.PublicKey;
+import java.security.Signature;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,11 +23,16 @@ public class SimpleTimestampServer implements TimestampServer {
     // Prevent double spending in current block
     private final Set<Utxo> currentBlockUtxoSet = new HashSet<>();
 
+    @Getter
+    private final BlockMiner blockMiner;
+
 
     public SimpleTimestampServer(Account baseAccount,
-                                 long maxSupply) {
+                                 long maxSupply,
+                                 BlockMiner blockMiner) {
         currentBlock = new Block(baseAccount, maxSupply);
-        if (!SimpleBlockMiner.getInstance().mine(this.currentBlock, Long.MAX_VALUE)) {
+        this.blockMiner = blockMiner;
+        if (!blockMiner.mine(this.currentBlock, Long.MAX_VALUE)) {
             throw new RuntimeException("Genesis block mining failed");
         }
         this.acceptBlock(currentBlock);
@@ -33,7 +40,7 @@ public class SimpleTimestampServer implements TimestampServer {
 
     @Override
     public boolean acceptBlock(Block block) {
-        if (SimpleBlockMiner.getInstance().verifyBlock(block) &&
+        if (blockMiner.verifyBlock(block) &&
                 verifyTransactions(block.getItems())) {
 
             for (Transaction transaction : block.getItems()) {
@@ -56,14 +63,6 @@ public class SimpleTimestampServer implements TimestampServer {
         return false;
     }
 
-    private void updateUtxo(Utxo utxo) {
-        if (utxo != null && utxo.getValue() > 0) {
-            utxo.setConfirmed(true);
-            utxo.setBlockHeight(currentBlock.getIdx());
-            utxoSet.add(utxo);
-        }
-    }
-
     @Override
     public byte[] getHash() {
         return blocks.get(blocks.size()-1).getHash();
@@ -71,7 +70,7 @@ public class SimpleTimestampServer implements TimestampServer {
 
     @Override
     public boolean mineCurrentBlock(long timeout) {
-        if (SimpleBlockMiner.getInstance().mine(this.currentBlock, timeout)) {
+        if (blockMiner.mine(this.currentBlock, timeout)) {
             return this.acceptBlock(currentBlock);
         }
         throw new RuntimeException("Mining block timeout");
@@ -83,9 +82,8 @@ public class SimpleTimestampServer implements TimestampServer {
             for (Utxo input: transaction.getInputs()) {
                 if (currentBlockUtxoSet.contains(input))
                     return false;
-                else
-                    currentBlockUtxoSet.add(input);
             }
+            currentBlockUtxoSet.addAll(transaction.getInputs());
             this.currentBlock.appendTransaction(transaction);
             return true;
         }
@@ -152,5 +150,12 @@ public class SimpleTimestampServer implements TimestampServer {
         }
     }
 
+    private void updateUtxo(Utxo utxo) {
+        if (utxo != null && utxo.getValue() > 0) {
+            utxo.setConfirmed(true);
+            utxo.setBlockHeight(currentBlock.getIdx());
+            utxoSet.add(utxo);
+        }
+    }
 
 }

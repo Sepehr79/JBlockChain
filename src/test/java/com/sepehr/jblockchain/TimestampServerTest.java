@@ -28,7 +28,8 @@ public class TimestampServerTest {
 
         final SimpleTimestampServer timestampServer = new SimpleTimestampServer(
                 baseAccount,
-                21_000_000
+                21_000_000,
+                new SimpleBlockMiner(2)
         );
 
         List<Utxo> inputs1 = timestampServer.getTransactionInputs(baseAccount.getPublicKey());

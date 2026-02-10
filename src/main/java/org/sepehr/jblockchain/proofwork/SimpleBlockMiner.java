@@ -13,7 +13,7 @@ public class SimpleBlockMiner implements BlockMiner {
 
     private volatile boolean mining;
 
-    private SimpleBlockMiner(int difficulty) {
+    public SimpleBlockMiner(int difficulty) {
         this.difficulty = difficulty;
         this.mining = false;
     }
@@ -49,11 +49,5 @@ public class SimpleBlockMiner implements BlockMiner {
 
     public void stopCurrentMining() {
         this.mining = false;
-    }
-
-    public static synchronized SimpleBlockMiner getInstance() {
-        if (miner == null)
-            miner = new SimpleBlockMiner(2);
-        return miner;
     }
 }

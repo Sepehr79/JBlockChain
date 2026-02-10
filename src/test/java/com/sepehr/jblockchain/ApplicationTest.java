@@ -6,6 +6,7 @@ import org.sepehr.jblockchain.account.Account;
 import org.sepehr.jblockchain.account.AccountFactory;
 import org.sepehr.jblockchain.account.SimpleAccountFactory;
 import org.sepehr.jblockchain.account.SimpleKeyFactory;
+import org.sepehr.jblockchain.proofwork.SimpleBlockMiner;
 import org.sepehr.jblockchain.timestampserver.SimpleTimestampServer;
 import org.sepehr.jblockchain.transaction.SimpleTransactionClient;
 import org.sepehr.jblockchain.transaction.Transaction;
@@ -22,7 +23,7 @@ public class ApplicationTest {
         Account account1    = accountFactory.buildAccount();
 
         long maxSupply = 21_000_000;
-        var timestampServer = new SimpleTimestampServer(baseAccount, maxSupply);
+        var timestampServer = new SimpleTimestampServer(baseAccount, maxSupply, new SimpleBlockMiner(2));
         var client = new SimpleTransactionClient();
 
         var baseAccountInputs = client.getAccountInputs(timestampServer, baseAccount.getPublicKey());

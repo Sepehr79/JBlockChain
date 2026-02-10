@@ -1,106 +1,123 @@
 package org.sepehr.jblockchain.network;
 
+import lombok.Getter;
 import org.sepehr.jblockchain.account.Account;
-import org.sepehr.jblockchain.proofwork.SimpleBlockMiner;
+import org.sepehr.jblockchain.proofwork.BlockMiner;
 import org.sepehr.jblockchain.timestampserver.Block;
 import org.sepehr.jblockchain.timestampserver.SimpleTimestampServer;
 import org.sepehr.jblockchain.transaction.Transaction;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class DistributedTimestampServer extends SimpleTimestampServer implements ConnectionGate {
+public class DistributedTimestampServer
+        extends SimpleTimestampServer
+        implements ConnectionGate, Runnable {
 
     private final int port;
-    private final List<Integer> peerPorts;
-    private final Set<String> seenMessages = Collections.synchronizedSet(new HashSet<>());
+    private List<String> peers = new ArrayList<>();
 
-    public DistributedTimestampServer(Account baseAccount, long maxSupply, int port, List<Integer> peerPorts) {
-        super(baseAccount, maxSupply);
+    private final Set<String> seenMessages =
+            Collections.synchronizedSet(new HashSet<>());
+
+    @Getter
+    private final Set<Transaction> transactionPool =
+            Collections.synchronizedSet(new HashSet<>());
+
+    private final ExecutorService networkExecutor =
+            Executors.newCachedThreadPool();
+
+    public DistributedTimestampServer(
+            Account baseAccount,
+            long maxSupply,
+            BlockMiner blockMiner,
+            int port,
+            List<String> peers) {
+
+        super(baseAccount, maxSupply, blockMiner);
         this.port = port;
-        this.peerPorts = peerPorts;
+        this.peers = peers;
+        startNetworkListener();
+    }
+
+    public DistributedTimestampServer(
+            Account baseAccount,
+            long maxSupply,
+            BlockMiner blockMiner,
+            int port) {
+
+        super(baseAccount, maxSupply, blockMiner);
+        this.port = port;
         startNetworkListener();
     }
 
     private void startNetworkListener() {
-        new Thread(() -> {
+        networkExecutor.submit(() -> {
             try (ServerSocket serverSocket = new ServerSocket(port)) {
                 System.out.println("Node started on port: " + port);
-                while (!Thread.currentThread().isInterrupted()) {
-                    try (Socket clientSocket = serverSocket.accept();
-                         ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())) {
 
-                        Object receivedData = in.readObject();
-
-                        if (receivedData instanceof Transaction) {
-                            onReceiveTransaction((Transaction) receivedData);
-                        } else if (receivedData instanceof Block) {
-                            onReceiveBlock((Block) receivedData);
-                        }
-                    } catch (Exception e) {
-                        System.err.println("Error receiving data: " + e.getMessage());
-                    }
+                while (true) {
+                    Socket socket = serverSocket.accept();
+                    networkExecutor.submit(() -> handleConnection(socket));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
+    }
+
+    private void handleConnection(Socket socket) {
+        try (ObjectInputStream in =
+                     new ObjectInputStream(socket.getInputStream())) {
+
+            Object data = in.readObject();
+
+            if (data instanceof Transaction) {
+                onReceiveTransaction((Transaction) data);
+            } else if (data instanceof Block) {
+                onReceiveBlock((Block) data);
+            }
+
+        } catch (Exception e) {
+            System.err.println("Receive error: " + e.getMessage());
+        }
     }
 
     @Override
-    public void onReceiveTransaction(Transaction transaction) {
-        String txHash = Base64.getEncoder().encodeToString(transaction.getHash());
+    public void onReceiveTransaction(Transaction tx) {
+        String hash = Base64.getEncoder().encodeToString(tx.getHash());
 
-        if (seenMessages.contains(txHash)) return;
-        seenMessages.add(txHash);
+        if (!seenMessages.add(hash)) return;
 
-        if (this.appendTransaction(transaction)) {
-            System.out.println("[" + port + "] New transaction received and relayed.");
-            broadcastTransaction(transaction);
+        if (appendTransaction(tx)) {
+            transactionPool.add(tx);
+            broadcastTransaction(tx);
+            System.out.println("[" + port + "] TX received & broadcast");
         }
     }
 
     @Override
     public void onReceiveBlock(Block block) {
-        String blockHash = Base64.getEncoder().encodeToString(block.getHash());
+        String hash = Base64.getEncoder().encodeToString(block.getHash());
 
-        if (seenMessages.contains(blockHash)) return;
-        seenMessages.add(blockHash);
+        if (!seenMessages.add(hash)) return;
 
-        if (this.acceptBlock(block)) {
-            System.out.println("[" + port + "] New block accepted: Index " + block.getIdx());
-
-            SimpleBlockMiner.getInstance().stopCurrentMining();
-
+        if (acceptBlock(block)) {
+            block.getItems().forEach(transactionPool::remove);
             broadcastBlock(block);
+            System.out.println("[" + port + "] Block accepted: " + block.getIdx());
         }
     }
 
-    @Override
-    public boolean appendTransaction(Transaction transaction) {
-        if (super.appendTransaction(transaction)) {
-            broadcastTransaction(transaction);
-            return true;
-        }
-        return false;
-    }
+    // ================= BROADCAST =================
 
     @Override
-    public boolean mineCurrentBlock(long timeout) {
-        if (super.mineCurrentBlock(timeout)) {
-            broadcastBlock(super.getBlocks().get(this.getBlocks().size() - 1));
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void broadcastTransaction(Transaction transaction) {
-        sendToPeers(transaction);
+    public void broadcastTransaction(Transaction tx) {
+        sendToPeers(tx);
     }
 
     @Override
@@ -109,18 +126,59 @@ public class DistributedTimestampServer extends SimpleTimestampServer implements
     }
 
     private void sendToPeers(Object data) {
-        for (int peerPort : peerPorts) {
-            if (peerPort == this.port) continue;
+        for (String peer : peers) {
 
-            new Thread(() -> {
-                try (Socket socket = new Socket("localhost", peerPort);
-                     ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
+            networkExecutor.submit(() -> {
+                String[] address = peer.split(":");
+                try (Socket socket = new Socket(address[0], Integer.parseInt(address[1]));
+                     ObjectOutputStream out =
+                             new ObjectOutputStream(socket.getOutputStream())) {
+
                     out.writeObject(data);
                     out.flush();
-                } catch (IOException ignored) {
-                    System.out.println("Peer not available-> localhost:" + peerPort);
+
+                } catch (IOException e) {
+                    System.out.println("Peer offline: " + peer);
                 }
-            }).start();
+            });
         }
+    }
+
+    @Override
+    public void run() {
+        ExecutorService minerExecutor =
+                Executors.newSingleThreadExecutor();
+
+        int lastTxCount = 0;
+
+        while (true) {
+            int currentTxCount =
+                    getCurrentBlock().getItems().size();
+
+            if (currentTxCount > lastTxCount) {
+                lastTxCount = currentTxCount;
+
+                minerExecutor.submit(() -> {
+                    if (mineCurrentBlock(Long.MAX_VALUE)) {
+                        System.out.println(
+                                "Block mined: " +
+                                        getCurrentBlock().getIdx());
+                        broadcastLastBlock();
+                    }
+                });
+            }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {}
+        }
+    }
+
+    public void broadcastLastBlock() {
+        Block lastBlock =
+                getBlocks().get(getBlocks().size() - 1);
+
+        lastBlock.getItems().forEach(transactionPool::remove);
+        sendToPeers(lastBlock);
     }
 }
