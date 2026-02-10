@@ -19,7 +19,7 @@ public class DistributedTimestampServer
         implements ConnectionGate, Runnable {
 
     private final int port;
-    private Set<String> peers = new HashSet<>();
+    private final Set<String> peers = new HashSet<>();
 
     private final Set<String> seenMessages =
             Collections.synchronizedSet(new HashSet<>());
