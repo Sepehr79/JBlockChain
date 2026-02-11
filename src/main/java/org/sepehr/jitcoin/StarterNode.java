@@ -14,12 +14,12 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.ExecutionException;
 
-public class BaseNode {
+public class StarterNode {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, ExecutionException, InterruptedException {
 
         if (args.length != 3) {
             System.out.println(
-                    "Usage: java -jar Node.jar <difficulty> <port> <max supply>"
+                    "Usage: java -jar StarterNode.jar <difficulty> <port> <max supply>"
             );
             System.exit(1);
         }

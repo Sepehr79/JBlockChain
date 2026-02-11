@@ -8,4 +8,6 @@ public interface BlockMiner {
 
     boolean verifyBlock(Block block);
 
+    int getDifficulty();
+
 }

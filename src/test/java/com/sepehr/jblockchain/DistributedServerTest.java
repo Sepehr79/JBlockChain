@@ -10,7 +10,6 @@ import org.sepehr.jitcoin.proofwork.SimpleBlockMiner;
 import org.sepehr.jitcoin.transaction.SimpleTransactionClient;
 import org.sepehr.jitcoin.transaction.Transaction;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class DistributedServerTest {

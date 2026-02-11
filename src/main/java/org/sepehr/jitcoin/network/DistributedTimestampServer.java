@@ -3,6 +3,8 @@ package org.sepehr.jitcoin.network;
 import lombok.Getter;
 import org.sepehr.jitcoin.account.Account;
 import org.sepehr.jitcoin.proofwork.BlockMiner;
+import org.sepehr.jitcoin.request.FollowerNodeReply;
+import org.sepehr.jitcoin.request.FollowerNodeRequest;
 import org.sepehr.jitcoin.request.TransactionInputReply;
 import org.sepehr.jitcoin.request.TransactionInputRequest;
 import org.sepehr.jitcoin.timestampserver.Block;
@@ -42,6 +44,12 @@ public class DistributedTimestampServer
             int port) {
 
         super(baseAccount, maxSupply, blockMiner);
+        this.port = port;
+        startNetworkListener();
+    }
+
+    public DistributedTimestampServer(List<Block> blocks, Set<Utxo> utxoSet, BlockMiner blockMiner, int port) {
+        super(blocks, utxoSet, blockMiner);
         this.port = port;
         startNetworkListener();
     }
@@ -92,13 +100,20 @@ public class DistributedTimestampServer
                         System.err.println("Failed to send TransactionInputReply: " + e.getMessage());
                     }
 
+                } else if (data instanceof FollowerNodeRequest) {
+                    String address = ((FollowerNodeRequest) data).getAddress();
+                    this.addPeer(address);
+
+                    FollowerNodeReply followerNodeReply = new FollowerNodeReply(this.getBlocks(), this.getUtxoSet(), this.getBlockMiner().getDifficulty());
+                    out.writeObject(followerNodeReply);
+                    out.flush();
                 } else {
                     System.err.println("Unknown request type: " + data.getClass());
                 }
             }
 
-        } catch (IOException e) {
-            System.err.println("Connection closed: " + e.getMessage());
+        } catch (IOException ignored) {
+
         } catch (ClassNotFoundException e) {
             System.err.println("Invalid object received: " + e.getMessage());
         } finally {

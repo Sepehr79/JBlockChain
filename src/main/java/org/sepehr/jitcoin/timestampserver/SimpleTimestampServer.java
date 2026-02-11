@@ -3,6 +3,7 @@ package org.sepehr.jitcoin.timestampserver;
 import lombok.Getter;
 import org.sepehr.jitcoin.account.Account;
 import org.sepehr.jitcoin.proofwork.BlockMiner;
+import org.sepehr.jitcoin.proofwork.SimpleBlockMiner;
 import org.sepehr.jitcoin.transaction.Transaction;
 import org.sepehr.jitcoin.transaction.Utxo;
 import org.sepehr.jitcoin.verification.MerkleTree;
@@ -16,10 +17,11 @@ public class SimpleTimestampServer implements TimestampServer {
 
     private Block currentBlock;
 
-    private final List<Block> blocks = new ArrayList<>();
+    private List<Block> blocks = new ArrayList<>();
 
     // Prevent double spending in all blocks
-    private final Set<Utxo> utxoSet = new HashSet<>();
+    @Getter
+    private Set<Utxo> utxoSet = new HashSet<>();
     // Prevent double spending in current block
     private final Set<Utxo> currentBlockUtxoSet = new HashSet<>();
 
@@ -36,6 +38,14 @@ public class SimpleTimestampServer implements TimestampServer {
             throw new RuntimeException("Genesis block mining failed");
         }
         this.acceptBlock(currentBlock);
+    }
+
+    public SimpleTimestampServer(List<Block> blocks, Set<Utxo> utxoSet, BlockMiner blockMiner) {
+        this.blocks = blocks;
+        this.utxoSet = utxoSet;
+        this.blockMiner = blockMiner;
+        Block lastBlock = blocks.get(blocks.size() - 1);
+        this.currentBlock = new Block(lastBlock.getPrevHash(), lastBlock.getIdx() + 1);
     }
 
     @Override

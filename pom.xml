@@ -67,18 +67,36 @@
                 <executions>
 
                     <execution>
-                        <id>Node</id>
+                        <id>Node1</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>BaseNode</finalName>
+                            <finalName>StarterNode</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.sepehr.jitcoin.BaseNode</mainClass>
+                                    <mainClass>org.sepehr.jitcoin.StarterNode</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>Node2</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>FollowerNode</finalName>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>org.sepehr.jitcoin.FollowerNode</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
