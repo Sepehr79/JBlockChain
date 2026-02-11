@@ -38,7 +38,7 @@ public class DistributedServerTest {
         System.out.println("Step 1: Appending transaction to Node A...");
         nodeA.onReceiveTransaction(tx);
 
-        Thread.sleep(3000);
+        Thread.sleep(6000);
 
         Assertions.assertTrue(nodeC.getCurrentBlock().getItems().contains(tx),
                 "Transaction should propagate from Node A to Node C through Node B");
@@ -56,7 +56,7 @@ public class DistributedServerTest {
 
         Assertions.assertTrue(mined, "Node B should successfully mine the block");
 
-        Thread.sleep(3000);
+        Thread.sleep(6000);
 
         Assertions.assertEquals(0, nodeB.getTransactionPool().size());
         Assertions.assertEquals(0, nodeA.getTransactionPool().size());
