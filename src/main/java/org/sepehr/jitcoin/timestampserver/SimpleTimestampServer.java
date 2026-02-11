@@ -45,7 +45,7 @@ public class SimpleTimestampServer implements TimestampServer {
         this.utxoSet = utxoSet;
         this.blockMiner = blockMiner;
         Block lastBlock = blocks.get(blocks.size() - 1);
-        this.currentBlock = new Block(lastBlock.getPrevHash(), lastBlock.getIdx() + 1);
+        this.currentBlock = new Block(lastBlock.getHash(), lastBlock.getIdx() + 1);
     }
 
     @Override

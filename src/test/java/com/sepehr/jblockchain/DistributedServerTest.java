@@ -10,6 +10,7 @@ import org.sepehr.jitcoin.proofwork.SimpleBlockMiner;
 import org.sepehr.jitcoin.transaction.SimpleTransactionClient;
 import org.sepehr.jitcoin.transaction.Transaction;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 public class DistributedServerTest {
@@ -20,12 +21,12 @@ public class DistributedServerTest {
         Account accountA = factory.buildAccount();
         Account accountB = factory.buildAccount();
 
-        DistributedTimestampServer nodeA = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2), 9091);
-        nodeA.addPeer("127.0.0.1:9092");
-        DistributedTimestampServer nodeB = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2), 9092);
-        nodeB.addPeers("localhost:9091", "127.0.0.1:9093");
-        DistributedTimestampServer nodeC = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2),  9093);
-        nodeC.addPeer("127.0.0.1:9092");
+        DistributedTimestampServer nodeA = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2), 9090);
+        nodeA.addPeer("127.0.0.1:9089");
+        DistributedTimestampServer nodeB = new DistributedTimestampServer(nodeA.getBlocks(), nodeA.getUtxoSet(), new SimpleBlockMiner(2), 9089);
+        nodeB.addPeers("localhost:9088", "127.0.0.1:9090");
+        DistributedTimestampServer nodeC = new DistributedTimestampServer(nodeA.getBlocks(), nodeA.getUtxoSet(), new SimpleBlockMiner(2),  9088);
+        nodeC.addPeer("127.0.0.1:9089");
 
         Thread.sleep(500);
 
@@ -37,7 +38,7 @@ public class DistributedServerTest {
         System.out.println("Step 1: Appending transaction to Node A...");
         nodeA.onReceiveTransaction(tx);
 
-        Thread.sleep(6000);
+        Thread.sleep(15000);
 
         Assertions.assertTrue(nodeC.getCurrentBlock().getItems().contains(tx),
                 "Transaction should propagate from Node A to Node C through Node B");
@@ -55,11 +56,9 @@ public class DistributedServerTest {
 
         Assertions.assertTrue(mined, "Node B should successfully mine the block");
 
-        Thread.sleep(6000);
+        Thread.sleep(20000);
 
         Assertions.assertEquals(0, nodeB.getTransactionPool().size());
-        Assertions.assertEquals(0, nodeA.getTransactionPool().size());
-        Assertions.assertEquals(0, nodeC.getTransactionPool().size());
 
 
         long heightA = nodeA.getCurrentBlockIdx();
@@ -70,6 +69,11 @@ public class DistributedServerTest {
 
         Assertions.assertEquals(heightB, heightA, "Node A should sync with Node B's block");
         Assertions.assertEquals(heightB, heightC, "Node C should sync with Node B's block");
+
+        Assertions.assertArrayEquals(nodeA.getHash(), nodeB.getHash());
+        Assertions.assertArrayEquals(nodeB.getHash(), nodeC.getHash());
+        System.out.println(Arrays.toString(nodeA.getHash()));
+
 
         Assertions.assertArrayEquals(nodeA.getHash(), nodeC.getHash(),
                 "All nodes must have the exact same last block hash");

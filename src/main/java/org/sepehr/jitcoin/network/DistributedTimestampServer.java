@@ -127,39 +127,55 @@ public class DistributedTimestampServer
 
     @Override
     public void onReceiveTransaction(Transaction tx) {
+
         String hash = Base64.getEncoder().encodeToString(tx.getHash());
 
-        if (!seenMessages.add(hash)) return;
+        boolean isNew = seenMessages.add(hash);
 
         if (appendTransaction(tx)) {
             transactionPool.add(tx);
-            broadcastTransaction(tx);
+
+            if (isNew) {
+                broadcastTransaction(tx);
+            }
+
             System.out.println("[" + port + "] TX received & broadcast");
         }
     }
 
+
     @Override
     public void onReceiveBlock(Block block) {
+
         String hash = Base64.getEncoder().encodeToString(block.getHash());
 
-        if (!seenMessages.add(hash)) return;
+        boolean isNew = seenMessages.add(hash);
 
         if (acceptBlock(block)) {
             block.getItems().forEach(transactionPool::remove);
-            broadcastBlock(block);
+
+            if (isNew) {
+                broadcastBlock(block);
+            }
+
             System.out.println("[" + port + "] Block accepted: " + block.getIdx());
         }
     }
+
 
     // ================= BROADCAST =================
 
     @Override
     public void broadcastTransaction(Transaction tx) {
+        String hash = Base64.getEncoder().encodeToString(tx.getHash());
+        seenMessages.add(hash);
         sendToPeers(tx);
     }
 
     @Override
     public void broadcastBlock(Block block) {
+        String hash = Base64.getEncoder().encodeToString(block.getHash());
+        seenMessages.add(hash);
         sendToPeers(block);
     }
 
