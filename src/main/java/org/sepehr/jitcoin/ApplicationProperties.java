@@ -13,7 +13,7 @@ public class ApplicationProperties {
     private ApplicationProperties() {
         try {
             properties = new Properties();
-            properties.load(Main.class.getResourceAsStream("/application.properties"));
+            properties.load(BaseNode.class.getResourceAsStream("/application.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }

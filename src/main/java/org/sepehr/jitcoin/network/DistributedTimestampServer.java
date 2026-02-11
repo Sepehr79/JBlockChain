@@ -3,13 +3,17 @@ package org.sepehr.jitcoin.network;
 import lombok.Getter;
 import org.sepehr.jitcoin.account.Account;
 import org.sepehr.jitcoin.proofwork.BlockMiner;
+import org.sepehr.jitcoin.request.TransactionInputReply;
+import org.sepehr.jitcoin.request.TransactionInputRequest;
 import org.sepehr.jitcoin.timestampserver.Block;
 import org.sepehr.jitcoin.timestampserver.SimpleTimestampServer;
 import org.sepehr.jitcoin.transaction.Transaction;
+import org.sepehr.jitcoin.transaction.Utxo;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.PublicKey;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,19 +62,51 @@ public class DistributedTimestampServer
     }
 
     private void handleConnection(Socket socket) {
-        try (ObjectInputStream in =
-                     new ObjectInputStream(socket.getInputStream())) {
+        ObjectOutputStream out = null;
+        ObjectInputStream in = null;
 
-            Object data = in.readObject();
+        try {
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
 
-            if (data instanceof Transaction) {
-                onReceiveTransaction((Transaction) data);
-            } else if (data instanceof Block) {
-                onReceiveBlock((Block) data);
+            Object data;
+            while ((data = in.readObject()) != null) {
+
+                if (data instanceof Transaction) {
+                    Transaction tx = (Transaction) data;
+                    onReceiveTransaction(tx);
+
+                } else if (data instanceof Block) {
+                    Block block = (Block) data;
+                    onReceiveBlock(block);
+
+                } else if (data instanceof TransactionInputRequest) {
+                    TransactionInputRequest request = (TransactionInputRequest) data;
+                    List<Utxo> inputs = getTransactionInputs(request.getAccount());
+                    TransactionInputReply reply = new TransactionInputReply(inputs);
+
+                    try {
+                        out.writeObject(reply);
+                        out.flush();
+                    } catch (IOException e) {
+                        System.err.println("Failed to send TransactionInputReply: " + e.getMessage());
+                    }
+
+                } else {
+                    System.err.println("Unknown request type: " + data.getClass());
+                }
             }
 
-        } catch (Exception e) {
-            System.err.println("Receive error: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Connection closed: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.err.println("Invalid object received: " + e.getMessage());
+        } finally {
+            try {
+                if (in != null) in.close();
+                if (out != null) out.close();
+                socket.close();
+            } catch (IOException ignored) {}
         }
     }
 

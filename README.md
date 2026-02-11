@@ -23,6 +23,23 @@ The codebase is organized into specialized packages:
 * **Java 11+**
 * **Maven** (for dependency management and testing)
 
+1. First build project jar files
+    ```shell
+    mvn clean package
+    ```
+2. Then generate starter account key pair
+    ```shell
+    java -jar .\target\Key-Generator.jar
+    ```
+3. Third start node with the args `difficulty`, `socketPort` and `maxSupply`
+   ```shell
+   java -jar .\target\BaseNode.jar 2 8080 21000000 
+   ```
+4. Last start client 
+   ```shell
+   java -jar .\target\Client.jar 
+   ```
+
 ### Core Logic Example
 The following snippet (from `testApplication`) demonstrates the lifecycle of a transaction:
 
@@ -65,41 +82,59 @@ SimpleAccountFactory factory = new SimpleAccountFactory(new SimpleKeyFactory());
 Account accountA = factory.buildAccount();
 Account accountB = factory.buildAccount();
 
-// Create nodes with their respective ports and peer lists
-DistributedTimestampServer nodeA = new DistributedTimestampServer(accountA, 1000, 9091, List.of(9092));
-DistributedTimestampServer nodeB = new DistributedTimestampServer(accountA, 1000, 9092, List.of(9091, 9093));
-DistributedTimestampServer nodeC = new DistributedTimestampServer(accountA, 1000, 9093, List.of(9092));
+DistributedTimestampServer nodeA = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2), 9091);
+nodeA.addPeer("127.0.0.1:9092");
+DistributedTimestampServer nodeB = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2), 9092);
+nodeB.addPeers("localhost:9091", "127.0.0.1:9093");
+DistributedTimestampServer nodeC = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2),  9093);
+nodeC.addPeer("127.0.0.1:9092");
 
-Thread.sleep(500); // Wait for servers to boot
+Thread.sleep(500);
 
-// 2. Propagation Check
-// Create a transaction on Node A
 Transaction tx = new SimpleTransactionClient().createTransaction(
-        accountA.getPublicKey(), accountA.getPrivateKey(), 10,
-        accountB.getPublicKey(), nodeA.getTransactionInputs(accountA.getPublicKey())
+   accountA.getPublicKey(), accountA.getPrivateKey(), 10,
+   accountB.getPublicKey(), nodeA.getTransactionInputs(accountA.getPublicKey())
 );
 
 System.out.println("Step 1: Appending transaction to Node A...");
-nodeA.appendTransaction(tx);
+nodeA.onReceiveTransaction(tx);
 
-Thread.sleep(3000); // Allow time for Gossip protocol to reach Node C
+Thread.sleep(3000);
 
-// Verify that Node C received the transaction via Node B
 Assertions.assertTrue(nodeC.getCurrentBlock().getItems().contains(tx),
         "Transaction should propagate from Node A to Node C through Node B");
+System.out.println("Step 2: Transaction successfully reached Node C.");
 
-// 3. Mining & Synchronization
+Assertions.assertEquals(1, nodeC.getTransactionPool().size());
+Assertions.assertEquals(1, nodeB.getTransactionPool().size());
+Assertions.assertEquals(1, nodeA.getTransactionPool().size());
+
+
 System.out.println("Step 3: Node B starts mining...");
 boolean mined = nodeB.mineCurrentBlock(5000);
+Assertions.assertTrue(mined);
+nodeB.broadcastLastBlock();
+
 Assertions.assertTrue(mined, "Node B should successfully mine the block");
 
-Thread.sleep(3000); // Allow time for the new block to propagate
+Thread.sleep(3000);
 
-// 4. Verification of Consensus
-Assertions.assertEquals(nodeB.getCurrentBlockIdx(), nodeA.getCurrentBlockIdx(),
-"Node A should sync with Node B's block height");
+Assertions.assertEquals(0, nodeB.getTransactionPool().size());
+Assertions.assertEquals(0, nodeA.getTransactionPool().size());
+Assertions.assertEquals(0, nodeC.getTransactionPool().size());
+
+
+long heightA = nodeA.getCurrentBlockIdx();
+long heightB = nodeB.getCurrentBlockIdx();
+long heightC = nodeC.getCurrentBlockIdx();
+
+Thread.sleep(3000);
+
+Assertions.assertEquals(heightB, heightA, "Node A should sync with Node B's block");
+Assertions.assertEquals(heightB, heightC, "Node C should sync with Node B's block");
+
 Assertions.assertArrayEquals(nodeA.getHash(), nodeC.getHash(),
-"All nodes must have the exact same last block hash");
+        "All nodes must have the exact same last block hash");
 
 System.out.println("Success: Network consensus reached!");
 ```        

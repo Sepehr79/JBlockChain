@@ -14,7 +14,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.ExecutionException;
 
-public class Main {
+public class BaseNode {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, ExecutionException, InterruptedException {
 
         if (args.length != 3) {
