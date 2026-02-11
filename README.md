@@ -31,9 +31,13 @@ The codebase is organized into specialized packages:
     ```shell
     java -jar .\target\Key-Generator.jar
     ```
-3. Third start server node with the args `difficulty`, `socketPort` and `maxSupply`
+3. Third start starter and follower nodes node with the args `difficulty`, `socketPort` and `maxSupply`
    ```shell
-   java -jar .\target\BaseNode.jar 2 8080 21000000 
+   java -jar .\target\StarterNode.jar 2 8080 21000000
+   ```
+   `current address` and `starter address`
+   ```shell
+   java -jar .\target\FollowerNode.jar localhost:8081 localhost:8080
    ```
 4. Start the client and interact with server node 
    ```shell
