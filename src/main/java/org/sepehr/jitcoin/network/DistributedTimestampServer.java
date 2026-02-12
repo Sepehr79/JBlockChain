@@ -190,22 +190,33 @@ public class DistributedTimestampServer
 
     private void sendToPeers(Object data) {
         for (String peer : peers) {
-
             networkExecutor.submit(() -> {
+
                 String[] address = peer.split(":");
-                try (Socket socket = new Socket(address[0], Integer.parseInt(address[1]));
-                     ObjectOutputStream out =
-                             new ObjectOutputStream(socket.getOutputStream())) {
+                int attempts = 5;
 
-                    out.writeObject(data);
-                    out.flush();
+                while (attempts-- > 0) {
+                    try (Socket socket =
+                                 new Socket(address[0], Integer.parseInt(address[1]));
+                         ObjectOutputStream out =
+                                 new ObjectOutputStream(socket.getOutputStream())) {
 
-                } catch (IOException e) {
-                    System.out.println("Peer offline: " + peer);
+                        out.writeObject(data);
+                        out.flush();
+                        return;
+
+                    } catch (IOException e) {
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException ignored) {}
+                    }
                 }
+
+                System.out.println("Failed after retries: " + peer);
             });
         }
     }
+
 
     @Override
     public void run() {
