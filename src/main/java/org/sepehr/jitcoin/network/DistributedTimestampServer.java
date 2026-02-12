@@ -27,6 +27,9 @@ public class DistributedTimestampServer
     private final int port;
     private final Set<String> peers = new HashSet<>();
 
+    private ServerSocket serverSocket;
+    private volatile boolean running = true;
+
     private final Set<String> seenMessages =
             Collections.synchronizedSet(new HashSet<>());
 
@@ -56,15 +59,20 @@ public class DistributedTimestampServer
 
     private void startNetworkListener() {
         networkExecutor.submit(() -> {
-            try (ServerSocket serverSocket = new ServerSocket(port)) {
+            try {
+                serverSocket = new ServerSocket(port);
                 System.out.println("Node started on port: " + port);
 
-                while (true) {
-                    Socket socket = serverSocket.accept();
-                    networkExecutor.submit(() -> handleConnection(socket));
+                while (running) {
+                    try {
+                        Socket socket = serverSocket.accept();
+                        networkExecutor.submit(() -> handleConnection(socket));
+                    } catch (IOException e) {
+                        if (!running) break;
+                    }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException("Failed to start server on port " + port, e);
             }
         });
     }
@@ -255,4 +263,17 @@ public class DistributedTimestampServer
         lastBlock.getItems().forEach(transactionPool::remove);
         sendToPeers(lastBlock);
     }
+
+    public void shutdown() {
+        running = false;
+
+        try {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+            }
+        } catch (IOException ignored) {}
+
+        networkExecutor.shutdownNow();
+    }
+
 }
