@@ -142,7 +142,6 @@ public class DistributedTimestampServer
 
         boolean appended = appendTransaction(tx);
 
-        // 🔥 این خط کلیدی است
         transactionPool.add(tx);
 
         if (isNew) {
@@ -174,7 +173,6 @@ public class DistributedTimestampServer
     }
 
 
-    // ================= BROADCAST =================
 
     @Override
     public void broadcastTransaction(Transaction tx) {
