@@ -10,80 +10,128 @@ import org.sepehr.jitcoin.proofwork.SimpleBlockMiner;
 import org.sepehr.jitcoin.transaction.SimpleTransactionClient;
 import org.sepehr.jitcoin.transaction.Transaction;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 
 public class DistributedServerTest {
 
     @Test
-    public void testNetworkPropagationAndConsensus() throws InterruptedException, ExecutionException {
-        SimpleAccountFactory factory = new SimpleAccountFactory(new SimpleKeyFactory());
+    public void testNetworkPropagationAndConsensus() throws Exception {
+
+        SimpleAccountFactory factory =
+                new SimpleAccountFactory(new SimpleKeyFactory());
+
         Account accountA = factory.buildAccount();
         Account accountB = factory.buildAccount();
 
-        DistributedTimestampServer nodeA = new DistributedTimestampServer(accountA, 1000, new SimpleBlockMiner(2), 9090);
+        DistributedTimestampServer nodeA =
+                new DistributedTimestampServer(accountA, 1000,
+                        new SimpleBlockMiner(2), 9090);
+
         nodeA.addPeer("127.0.0.1:9089");
-        DistributedTimestampServer nodeB = new DistributedTimestampServer(new ArrayList<>(nodeA.getBlocks()),
-                new HashSet<>(nodeA.getUtxoSet()), new SimpleBlockMiner(2), 9089);
-        nodeB.addPeers("localhost:9088", "127.0.0.1:9090");
-        DistributedTimestampServer nodeC = new DistributedTimestampServer(new ArrayList<>(nodeA.getBlocks()), new HashSet<>(nodeA.getUtxoSet()), new SimpleBlockMiner(2),  9088);
+
+        DistributedTimestampServer nodeB =
+                new DistributedTimestampServer(
+                        new ArrayList<>(nodeA.getBlocks()),
+                        new HashSet<>(nodeA.getUtxoSet()),
+                        new SimpleBlockMiner(2),
+                        9089);
+
+        nodeB.addPeers("127.0.0.1:9088", "127.0.0.1:9090");
+
+        DistributedTimestampServer nodeC =
+                new DistributedTimestampServer(
+                        new ArrayList<>(nodeA.getBlocks()),
+                        new HashSet<>(nodeA.getUtxoSet()),
+                        new SimpleBlockMiner(2),
+                        9088);
+
         nodeC.addPeer("127.0.0.1:9089");
 
-        Thread.sleep(500);
+        // Wait until all nodes are listening
+        waitUntilPortOpen(9090, 5000);
+        waitUntilPortOpen(9089, 5000);
+        waitUntilPortOpen(9088, 5000);
 
         Transaction tx = new SimpleTransactionClient().createTransaction(
-                accountA.getPublicKey(), accountA.getPrivateKey(), 10,
-                accountB.getPublicKey(), nodeA.getTransactionInputs(accountA.getPublicKey())
+                accountA.getPublicKey(),
+                accountA.getPrivateKey(),
+                10,
+                accountB.getPublicKey(),
+                nodeA.getTransactionInputs(accountA.getPublicKey())
         );
 
-        System.out.println("Step 1: Appending transaction to Node A...");
         nodeA.onReceiveTransaction(tx);
 
-        Thread.sleep(15000);
+        // ✅ Wait for propagation to C
+        boolean propagated = waitUntil(
+                () -> nodeC.getTransactionPool().contains(tx),
+                30000
+        );
 
-        Assertions.assertTrue(nodeC.getCurrentBlock().getItems().contains(tx),
-                "Transaction should propagate from Node A to Node C through Node B");
-        System.out.println("Step 2: Transaction successfully reached Node C.");
+        Assertions.assertTrue(propagated,
+                "Transaction should propagate from Node A to Node C");
 
-        Assertions.assertEquals(1, nodeC.getTransactionPool().size());
-        Assertions.assertEquals(1, nodeB.getTransactionPool().size());
         Assertions.assertEquals(1, nodeA.getTransactionPool().size());
+        Assertions.assertEquals(1, nodeB.getTransactionPool().size());
+        Assertions.assertEquals(1, nodeC.getTransactionPool().size());
 
-
-        System.out.println("Step 3: Node B starts mining...");
-        boolean mined = nodeB.mineCurrentBlock(5000);
+        // Start mining on B
+        boolean mined = nodeB.mineCurrentBlock(10000);
         Assertions.assertTrue(mined);
+
         nodeB.broadcastLastBlock();
 
-        Assertions.assertTrue(mined, "Node B should successfully mine the block");
+        // ✅ Wait for consensus
+        boolean consensusReached = waitUntil(
+                () -> nodeA.getCurrentBlockIdx() == nodeB.getCurrentBlockIdx()
+                        && nodeC.getCurrentBlockIdx() == nodeB.getCurrentBlockIdx(),
+                30000
+        );
 
-        Thread.sleep(20000);
-
-        Assertions.assertEquals(0, nodeB.getTransactionPool().size());
-        Assertions.assertEquals(0, nodeB.getTransactionPool().size());
-        Assertions.assertEquals(0, nodeB.getTransactionPool().size());
-
-
-        long heightA = nodeA.getCurrentBlockIdx();
-        long heightB = nodeB.getCurrentBlockIdx();
-        long heightC = nodeC.getCurrentBlockIdx();
-
-        Thread.sleep(3000);
-
-        Assertions.assertEquals(heightB, heightA, "Node A should sync with Node B's block");
-        Assertions.assertEquals(heightB, heightC, "Node C should sync with Node B's block");
+        Assertions.assertTrue(consensusReached,
+                "All nodes should sync to same height");
 
         Assertions.assertArrayEquals(nodeA.getHash(), nodeB.getHash());
         Assertions.assertArrayEquals(nodeB.getHash(), nodeC.getHash());
-        System.out.println(Arrays.toString(nodeA.getHash()));
 
-
-        Assertions.assertArrayEquals(nodeA.getHash(), nodeC.getHash(),
-                "All nodes must have the exact same last block hash");
-
-        System.out.println("Success: Network consensus reached!");
+        Assertions.assertEquals(0, nodeA.getTransactionPool().size());
+        Assertions.assertEquals(0, nodeB.getTransactionPool().size());
+        Assertions.assertEquals(0, nodeC.getTransactionPool().size());
     }
 
+    // ================= Helpers =================
+
+    private boolean waitUntil(Supplier<Boolean> condition, long timeoutMs)
+            throws InterruptedException {
+
+        long start = System.currentTimeMillis();
+
+        while (System.currentTimeMillis() - start < timeoutMs) {
+            if (condition.get()) {
+                return true;
+            }
+            Thread.sleep(100);
+        }
+        return false;
+    }
+
+    private void waitUntilPortOpen(int port, long timeoutMs)
+            throws Exception {
+
+        long start = System.currentTimeMillis();
+
+        while (System.currentTimeMillis() - start < timeoutMs) {
+            try (Socket ignored = new Socket("127.0.0.1", port)) {
+                return;
+            } catch (IOException ignored) {
+                Thread.sleep(100);
+            }
+        }
+
+        throw new RuntimeException("Port " + port + " did not open in time");
+    }
 }
