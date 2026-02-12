@@ -133,21 +133,24 @@ public class DistributedTimestampServer
         }
     }
 
+
     @Override
     public void onReceiveTransaction(Transaction tx) {
 
         String hash = Base64.getEncoder().encodeToString(tx.getHash());
-
         boolean isNew = seenMessages.add(hash);
 
-        if (appendTransaction(tx)) {
-            transactionPool.add(tx);
+        boolean appended = appendTransaction(tx);
 
-            if (isNew) {
-                broadcastTransaction(tx);
-            }
+        // 🔥 این خط کلیدی است
+        transactionPool.add(tx);
 
-            System.out.println("[" + port + "] TX received & broadcast");
+        if (isNew) {
+            broadcastTransaction(tx);
+        }
+
+        if (appended) {
+            System.out.println("[" + port + "] TX appended");
         }
     }
 
