@@ -58,21 +58,21 @@ public class DistributedTimestampServer
     }
 
     private void startNetworkListener() {
-        networkExecutor.submit(() -> {
-            try {
-                serverSocket = new ServerSocket(port);
-                System.out.println("Node started on port: " + port);
+        try {
+            serverSocket = new ServerSocket(port);
+            System.out.println("Node started on port: " + port);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to start server on port " + port, e);
+        }
 
-                while (running) {
-                    try {
-                        Socket socket = serverSocket.accept();
-                        networkExecutor.submit(() -> handleConnection(socket));
-                    } catch (IOException e) {
-                        if (!running) break;
-                    }
+        networkExecutor.submit(() -> {
+            while (running) {
+                try {
+                    Socket socket = serverSocket.accept();
+                    networkExecutor.submit(() -> handleConnection(socket));
+                } catch (IOException e) {
+                    if (!running) break;
                 }
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to start server on port " + port, e);
             }
         });
     }
